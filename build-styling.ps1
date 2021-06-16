@@ -4,8 +4,10 @@ foreach ($sassFile in $sass) {
   if ($name.StartsWith("_") ) {
   continue
    }
-   $ts = $sassFile.ToString().Replace(".scss", "-css.ts")
+   $ts = $sassFile.ToString().Replace(".scss", "-css.js")
+   $ts2 = $sassFile.ToString().Replace(".scss", "-built.css")
    Write-Host "Generating $ts"
    node scripts/sass-render/bin/sass-render.js -t sass-template.tmpl -s $sassFile -o $ts
+   node scripts/sass-render/bin/sass-render.js -t sass-template2.tmpl -s $sassFile -o $ts2
 }
 

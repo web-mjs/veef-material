@@ -26,7 +26,7 @@ const writeFile = util.promisify(fs.writeFile);
 
 const delim = /<%\s*content\s*%>/;
 
-async function sassToCss(sassFile) {
+async function sassToCss(sassFile, oStyle) {
   const result = await renderSass({
     file: sassFile,
     importer: (url, ...otherArgs) => {
@@ -35,7 +35,7 @@ async function sassToCss(sassFile) {
       }
       return nodeSassImport(url, ...otherArgs);
     },
-    outputStyle: 'compressed',
+    outputStyle: oStyle,
   });
     
   // Strip any Byte Order Marking from output CSS
@@ -52,7 +52,7 @@ async function sassRender(sourceFile, templateFile, outputFile) {
   if (!match) {
     throw new Error(`Template file ${templateFile} did not contain template delimiters`);
   }
-  const replacement = await sassToCss(sourceFile);
+  const replacement = await sassToCss(sourceFile, outputFile.endsWith('built.css') ? 'expanded' : 'compressed');
   const newContent = template.replace(delim, replacement);
   return writeFile(outputFile, newContent, 'utf-8');
 }
