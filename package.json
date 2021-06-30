@@ -84,7 +84,6 @@
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.24.4",
     "shady-css-parser": "^0.1.0",
-    "tachometer": "^0.4.13",
-    "typescript": "^4.1.4"
+    "tachometer": "^0.4.13"
   }
 }

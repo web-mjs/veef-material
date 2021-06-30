@@ -40,7 +40,8 @@ export default [
     input: './component-imports.mjs',
     output: {
       file: 'component-bundle.js',
-      format: 'es',
+      //format: 'es',
+      format: 'iife',
     },
     plugins: [
       resolve(),

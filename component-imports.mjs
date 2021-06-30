@@ -9,6 +9,7 @@ import '@material/mwc-select';
 import '@material/mwc-snackbar';
 import '@material/mwc-switch';
 import '@material/mwc-textfield';
+import '@material/mwc-textfield2';
 import '@material/mwc-circular-progress';
 import '@material/mwc-drawer';
 import '@material/mwc-fab';

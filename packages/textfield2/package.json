@@ -1,0 +1,24 @@
+{
+  "name": "@material/mwc-textfield2",
+  "version": "0.21.0",
+  "description": "Material Design textfield web component",
+  "keywords": [
+    "material design",
+    "web components",
+    "textfield"
+  ],
+  "main": "mwc-textfield.js",
+  "module": "mwc-textfield.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/material-components/material-components-web-components.git",
+    "directory": "packages/textfield"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@web-mjs/preact": "^20.5.13"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
