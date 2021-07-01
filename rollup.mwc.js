@@ -10,9 +10,9 @@ import commonjs from '@rollup/plugin-commonjs';
 export default [
   {
     // index es6
-    input: './component-imports.mjs',
+    input: './mwc-bundle.mjs',
     output: {
-      file: 'component-bundle.js',
+      file: 'mwc-bundle.js',
       //format: 'es',
       format: 'iife',
     },

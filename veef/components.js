@@ -16,8 +16,7 @@ limitations under the License.
 */
 import { render, html, webComponents, useRef, useEffect, useState } from '@web-mjs/preact';
 import { style as myCss } from './textfield-css.js';
-import { floatingLabel } from '@material/mwc-floating-label';
-import MDCTextFieldFoundation from '@material/textfield/foundation';
+//import { floatingLabel } from '@material/mwc-floating-label';
 
 const El = () => html`<h1>yoo</h1>`;
 const FOCUSED_CLS = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
@@ -29,7 +28,7 @@ const OutlineField = (props) => {
 	useEffect(() => {
 		styleRef.current.innerText = myCss;
 		outline.current.width = 100;
-		foundation.current.floatingLabelFoundation = floatingLabel('Example');
+		//foundation.current.floatingLabelFoundation = floatingLabel('Example');
 	});
 	const onClick = () => { 
 		//foundation.current.floatingLabelFoundation.float();
@@ -140,3 +139,144 @@ const Button = () => {
 	<style ref=${styleRef} />`;
 };
 webComponents.register(Button, 'veef-button', [], {shadow: true});
+
+const MyList = (props) => {
+	useEffect(() => {
+		styleRef.current.innerText = LIST_CSS;
+	});
+	const styleRef = useRef();
+	const list = useRef();
+	return html`
+	<style ref=${styleRef} />
+	<ul class="mdc-deprecated-list" ref=${list} tabindex="-1">
+	${props.children}
+	</ul>
+	`;
+}
+
+webComponents.register(MyList, 'veef-list', [], {shadow: true});
+
+const ListItem = (props) => {
+	//const context = useContext(ListContext);
+	useEffect(() => {
+		styleRef.current.innerText = LIST_ITEM_CSS;
+		const outerEl = styleRef.current.parentNode.host;
+		outerEl.addEventListener('mousedown', (e) => {
+			ripple.current.startPress(e);
+		});
+		outerEl.addEventListener('mouseup', (e) => {
+			ripple.current.endPress();
+		});
+		outerEl.addEventListener('mouseenter', (e) => {
+			ripple.current.startHover();
+		});
+		outerEl.addEventListener('mouseleave', (e) => {
+			ripple.current.endHover();
+		});
+		outerEl.addEventListener('blur', (e) => {
+			ripple.current.endFocus();
+		});
+	});
+	const styleRef = useRef();
+	const ripple = useRef();
+	return html`
+	<style ref=${styleRef} />
+	<mwc-ripple ref=${ripple} />
+	<span class="mdc-deprecated-list-item__graphic material-icons"><slot name="graphic" /></span>
+	<span class="mdc-deprecated-list-item__text"><slot /></span>
+	<span class="mdc-deprecated-list-item__meta material-icons"><slot name="meta" /></span>
+	`;
+}
+
+webComponents.register(ListItem, 'veef-list-item', ['renderCb'], {shadow: true});
+
+
+const LIST_CSS = `
+:host{
+display: block;
+}
+.mdc-deprecated-list {
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--mdc-typography-subtitle1-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+    font-size: var(--mdc-typography-subtitle1-font-size, 1rem);
+    font-weight: var(--mdc-typography-subtitle1-font-weight, 400);
+    letter-spacing: var(--mdc-typography-subtitle1-letter-spacing, 0.009375em);
+    text-decoration: var(--mdc-typography-subtitle1-text-decoration, inherit);
+    text-transform: var(--mdc-typography-subtitle1-text-transform, inherit);
+    line-height: 1.5rem;
+    margin: 0px;
+    list-style-type: none;
+    color: var(--mdc-theme-text-primary-on-background, rgba(0, 0, 0, 0.87));
+    padding: var(--mdc-list-vertical-padding, 8px) 0;
+}
+`;
+const LIST_ITEM_CSS = `
+:host{
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--mdc-typography-subtitle1-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+    font-size: var(--mdc-typography-subtitle1-font-size, 1rem);
+    font-weight: var(--mdc-typography-subtitle1-font-weight, 400);
+    letter-spacing: var(--mdc-typography-subtitle1-letter-spacing, 0.009375em);
+    text-transform: var(--mdc-typography-subtitle1-text-transform, inherit);
+    line-height: 1.5rem;
+    list-style-type: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: var(--mdc-list-side-padding, 16px);
+    padding-right: var(--mdc-list-side-padding, 16px);
+    outline: none;
+    color: var(--mdc-theme-text-primary-on-background, rgba(0, 0, 0, 0.87));
+    height: 72px;
+	cursor: pointer;
+}
+:host([twoline]) {
+    height: 72px;
+}
+:host([disabled]), :host([noninteractive]) {
+    cursor: default;
+    pointer-events: none;
+}
+:host([graphic="avatar"]) .mdc-deprecated-list-item__graphic, :host([graphic="medium"]) .mdc-deprecated-list-item__graphic, :host([graphic="large"]) .mdc-deprecated-list-item__graphic, :host([graphic="control"]) .mdc-deprecated-list-item__graphic {
+    margin-left: 0px;
+    margin-right: var(--mdc-list-item-graphic-margin, 16px);
+}
+:host([graphic="avatar"]) .mdc-deprecated-list-item__graphic {
+    width: var(--mdc-list-item-graphic-size, 40px);
+    height: var(--mdc-list-item-graphic-size, 40px);
+}
+.mdc-deprecated-list-item__graphic {
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    fill: currentcolor;
+    display: inline-flex;
+}
+:host([disabled]), :host([noninteractive]) {
+    cursor: default;
+    pointer-events: none;
+}
+:host([twoline]) .mdc-deprecated-list-item__text {
+    align-self: flex-start;
+}
+.mdc-deprecated-list-item__text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.mdc-deprecated-list-item__meta {
+    width: var(--mdc-list-item-meta-size, 24px);
+    height: var(--mdc-list-item-meta-size, 24px);
+    margin-left: auto;
+    margin-right: 0px;
+    color: var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.38));
+}
+
+`;
+
