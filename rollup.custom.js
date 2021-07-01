@@ -10,15 +10,18 @@ import commonjs from '@rollup/plugin-commonjs';
 export default [
   {
     // index es6
-    input: './custom-bundle.mjs',
+    input: './component-imports.mjs',
     output: {
-      file: 'custom-bundle.js',
+      file: 'component-bundle.js',
       //format: 'es',
       format: 'iife',
     },
     plugins: [
       resolve(),
       terser({ compress: { passes: 10 }, ecma: 2015, format: {ecma: 2015, comments: false, indent_level: 0} }),
+      strip({
+        functions: ['console.log'],
+      })
     ]
   }
 ];
