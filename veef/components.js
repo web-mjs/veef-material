@@ -16,7 +16,12 @@ limitations under the License.
 */
 import { render, html, webComponents, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import { style as myCss } from './textfield-css.js';
-//import { floatingLabel } from '@material/mwc-floating-label';
+
+// shite that needs to be handled
+// aria-*, focus/active, keyboard select, multiple pointers/mobile, passive events 
+// use <label>
+// print?
+// fuck RTL
 
 const El = () => html`<h1>yoo</h1>`;
 const FOCUSED_CLS = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
@@ -26,7 +31,7 @@ import useCls from './classList';
 
 const OutlineField = (props) => {
 	useEffect(() => {
-		styleRef.current.innerText = myCss;
+		putCss(styleRef.current, myCss);
 		outline.current.width = 100;
 	});
 	const onClick = () => { 
@@ -91,7 +96,7 @@ import { style as buttonCss } from './button-css.js';
 const Button = () => {
 	const FOC = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
 	useEffect(() => {
-		styleRef.current.innerText = buttonCss;
+		putCss(styleRef.current, buttonCss);
 		rippleRef.current.primary = false;
 		buttonRef.current.addEventListener('mousedown', (e) => {
 			rippleRef.current.startPress(e);
@@ -140,8 +145,8 @@ webComponents.register(Button, 'veef-button', [], {shadow: true});
 const ListContext = createContext();
 const MyList = (props) => {
 	useEffect(() => {
-		styleRef.current.innerText = LIST_CSS;
-		list.current.parentNode.host.addEventListener('focusout', () => {
+		putCss(styleRef.current, LIST_CSS);
+		list.current.addEventListener('focusout', () => {
 			console.log("WTF");
 			if(ripple) ripple.endPress();
 		});
@@ -165,14 +170,20 @@ const MyList = (props) => {
 	`;
 }
 
-import webRegister from './webc.js';
-//webComponents.register(MyList, 'veef-list', [], {shadow: true});
-webRegister(MyList, 'veef-list', [], {shadow: true});
+//import webRegister from './webc.js';
+webComponents.register(MyList, 'veef-list', [], {shadow: true});
+//webRegister(MyList, 'veef-list', [], {shadow: true});
+
+const putCss = (el, code) => {
+	console.log(el.childNodes[0]);
+	el.appendChild(el.ownerDocument.createTextNode(code));
+}
 
 const ListItem = (props) => {
 	const context = useContext(ListContext);
+	console.log(context);
 	useEffect(() => {
-		styleRef.current.innerText = LIST_ITEM_CSS;
+		putCss(styleRef.current, LIST_ITEM_CSS);
 		const outerEl = styleRef.current.parentNode.host;
 		//outerEl.setAttribute('tabindex', '-1');
 		outerEl.tabIndex = -1;
@@ -198,16 +209,28 @@ const ListItem = (props) => {
 	});
 	const styleRef = useRef();
 	const ripple = useRef();
+	console.log(props);
+	let textSlot = html`
+	<span class="mdc-deprecated-list-item__text"><slot /></span>
+	`;
+
+	if(props.twoline == "true" || props.twoline === "") {
+		textSlot = html`<span class="mdc-deprecated-list-item__text">
+<span class="mdc-deprecated-list-item__primary-text"><slot></slot></span>
+<span class="mdc-deprecated-list-item__secondary-text"><slot name="secondary"></slot></span>
+      </span>
+		`;
+	} 
 	return html`
 	<style ref=${styleRef} />
 	<mwc-ripple ref=${ripple} />
 	<span class="mdc-deprecated-list-item__graphic material-icons"><slot name="graphic" /></span>
-	<span class="mdc-deprecated-list-item__text"><slot /></span>
+	${textSlot}
 	<span class="mdc-deprecated-list-item__meta material-icons"><slot name="meta" /></span>
 	`;
 }
 
-webRegister(ListItem, 'veef-list-item', [], {shadow: true});
+webComponents.register(ListItem, 'veef-list-item', ['twoline'], {shadow: true});
 
 
 const LIST_CSS = `
@@ -231,14 +254,7 @@ display: block;
 `;
 const LIST_ITEM_CSS = `
 :host{
-    -webkit-font-smoothing: antialiased;
-    font-family: var(--mdc-typography-subtitle1-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
-    font-size: var(--mdc-typography-subtitle1-font-size, 1rem);
-    font-weight: var(--mdc-typography-subtitle1-font-weight, 400);
-    letter-spacing: var(--mdc-typography-subtitle1-letter-spacing, 0.009375em);
-    text-transform: var(--mdc-typography-subtitle1-text-transform, inherit);
-    line-height: 1.5rem;
-    list-style-type: none;
+    cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     display: flex;
@@ -251,9 +267,24 @@ const LIST_ITEM_CSS = `
     padding-left: var(--mdc-list-side-padding, 16px);
     padding-right: var(--mdc-list-side-padding, 16px);
     outline: none;
+    height: 48px;
     color: var(--mdc-theme-text-primary-on-background, rgba(0, 0, 0, 0.87));
+}
+:host([graphic="medium"]:not([twoline])), :host([graphic="large"]:not([twoline])) {
     height: 72px;
-	cursor: pointer;
+}
+:host([graphic="avatar"]:not([twoline])), :host([graphic="icon"]:not([twoline])) {
+    height: 56px;
+}
+:host([graphic="large"]) {
+    padding-left: 0px;
+}
+.mdc-deprecated-list-item__graphic {
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    fill: currentcolor;
+    display: inline-flex;
 }
 :host([twoline]) {
     height: 72px;
@@ -261,6 +292,12 @@ const LIST_ITEM_CSS = `
 :host([disabled]), :host([noninteractive]) {
     cursor: default;
     pointer-events: none;
+}
+:host([graphic="icon"]) .mdc-deprecated-list-item__graphic {
+    width: var(--mdc-list-item-graphic-size, 24px);
+    height: var(--mdc-list-item-graphic-size, 24px);
+    margin-left: 0px;
+    margin-right: var(--mdc-list-item-graphic-margin, 32px);
 }
 :host([graphic="avatar"]) .mdc-deprecated-list-item__graphic, :host([graphic="medium"]) .mdc-deprecated-list-item__graphic, :host([graphic="large"]) .mdc-deprecated-list-item__graphic, :host([graphic="control"]) .mdc-deprecated-list-item__graphic {
     margin-left: 0px;
@@ -270,13 +307,11 @@ const LIST_ITEM_CSS = `
     width: var(--mdc-list-item-graphic-size, 40px);
     height: var(--mdc-list-item-graphic-size, 40px);
 }
-.mdc-deprecated-list-item__graphic {
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    fill: currentcolor;
-    display: inline-flex;
+:host([graphic="medium"]) .mdc-deprecated-list-item__graphic, :host([graphic="large"]) .mdc-deprecated-list-item__graphic{
+	width: var(--mdc-list-item-graphic-size, 56px);
+    height: var(--mdc-list-item-graphic-size, 56px);
 }
+
 :host([disabled]), :host([noninteractive]) {
     cursor: default;
     pointer-events: none;
@@ -296,6 +331,68 @@ const LIST_ITEM_CSS = `
     margin-right: 0px;
     color: var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.38));
 }
-
+.mdc-deprecated-list-item__primary-text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-top: 0px;
+    line-height: normal;
+    margin-bottom: -20px;
+    display: block;
+}
+.mdc-deprecated-list-item__primary-text::before {
+    display: inline-block;
+    width: 0px;
+    height: 32px;
+    content: "";
+    vertical-align: 0px;
+}
+.mdc-deprecated-list-item__primary-text::after {
+    display: inline-block;
+    width: 0px;
+    height: 20px;
+    content: "";
+    vertical-align: -20px;
+}
+.mdc-deprecated-list-item__secondary-text {
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--mdc-typography-body2-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+    font-size: var(--mdc-typography-body2-font-size, 0.875rem);
+    font-weight: var(--mdc-typography-body2-font-weight, 400);
+    letter-spacing: var(--mdc-typography-body2-letter-spacing, 0.0178571em);
+    text-decoration: var(--mdc-typography-body2-text-decoration, inherit);
+    text-transform: var(--mdc-typography-body2-text-transform, inherit);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-top: 0px;
+    line-height: normal;
+    display: block;
+}
+.mdc-deprecated-list-item__secondary-text::before {
+    display: inline-block;
+    width: 0px;
+    height: 20px;
+    content: "";
+    vertical-align: 0px;
+}
+.mdc-deprecated-list-item__meta ::slotted(.material-icons), .mdc-deprecated-list-item__meta ::slotted(mwc-icon) {
+    line-height: var(--mdc-list-item-meta-size, 24px) !important;
+}
+.mdc-deprecated-list-item__meta ::slotted(*) {
+    width: 100%;
+    height: 100%;
+}
+.mdc-deprecated-list-item__meta ::slotted(*) {
+    width: var(--mdc-list-item-meta-size, 24px);
+    line-height: var(--mdc-list-item-meta-size, 24px);
+}
+.mdc-deprecated-list-item__graphic ::slotted(*) {
+    background-color: transparent;
+    color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
+}
+.mdc-deprecated-list-item__secondary-text ::slotted(*) {
+    color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
+}
 `;
 
