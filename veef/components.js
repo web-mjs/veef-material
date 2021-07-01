@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { render, html, webComponents, useRef, useEffect, useState } from '@web-mjs/preact';
+import { render, html, webComponents, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import { style as myCss } from './textfield-css.js';
 //import { floatingLabel } from '@material/mwc-floating-label';
 
@@ -28,11 +28,8 @@ const OutlineField = (props) => {
 	useEffect(() => {
 		styleRef.current.innerText = myCss;
 		outline.current.width = 100;
-		//foundation.current.floatingLabelFoundation = floatingLabel('Example');
 	});
 	const onClick = () => { 
-		//foundation.current.floatingLabelFoundation.float();
-		console.log(foundation.current);
 		outline.current.open = true;
 		setCls([...cls, ...FOCUSED_CLS]); 
 		setSpanCls(FOCUSED_SPAN);
@@ -140,27 +137,52 @@ const Button = () => {
 };
 webComponents.register(Button, 'veef-button', [], {shadow: true});
 
+const ListContext = createContext();
 const MyList = (props) => {
 	useEffect(() => {
 		styleRef.current.innerText = LIST_CSS;
+		list.current.parentNode.host.addEventListener('focusout', () => {
+			console.log("WTF");
+			if(ripple) ripple.endPress();
+		});
 	});
 	const styleRef = useRef();
+	const [ripple, setRipple] = useState(null);
+	/*
+	const onClick = (r) => {
+		console.log(list.current);
+		list.current.focus();
+		setRipple(r);
+	}; */
 	const list = useRef();
 	return html`
 	<style ref=${styleRef} />
+	<${ListContext.Provider} value=${{setRipple}} >
 	<ul class="mdc-deprecated-list" ref=${list} tabindex="-1">
 	${props.children}
 	</ul>
+	<//>
 	`;
 }
 
-webComponents.register(MyList, 'veef-list', [], {shadow: true});
+import webRegister from './webc.js';
+//webComponents.register(MyList, 'veef-list', [], {shadow: true});
+webRegister(MyList, 'veef-list', [], {shadow: true});
 
 const ListItem = (props) => {
-	//const context = useContext(ListContext);
+	const context = useContext(ListContext);
 	useEffect(() => {
 		styleRef.current.innerText = LIST_ITEM_CSS;
 		const outerEl = styleRef.current.parentNode.host;
+		//outerEl.setAttribute('tabindex', '-1');
+		outerEl.tabIndex = -1;
+		outerEl.setAttribute('aria-disabled', false);
+		outerEl.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			context.setRipple(ripple.current);
+			outerEl.focus();
+		});
 		outerEl.addEventListener('mousedown', (e) => {
 			ripple.current.startPress(e);
 		});
@@ -172,9 +194,6 @@ const ListItem = (props) => {
 		});
 		outerEl.addEventListener('mouseleave', (e) => {
 			ripple.current.endHover();
-		});
-		outerEl.addEventListener('blur', (e) => {
-			ripple.current.endFocus();
 		});
 	});
 	const styleRef = useRef();
@@ -188,7 +207,7 @@ const ListItem = (props) => {
 	`;
 }
 
-webComponents.register(ListItem, 'veef-list-item', ['renderCb'], {shadow: true});
+webRegister(ListItem, 'veef-list-item', [], {shadow: true});
 
 
 const LIST_CSS = `
