@@ -1,7 +1,16 @@
 <link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
 <script src="mwc-bundle.js"></script>
 <script src="custom-bundle.js"></script>
-<style>i[data-spacer]{display:block;height:300px;}</style>
+<style>i[data-spacer]{display:block;height:150px;}</style>
+
+<veef-switch checked></veef-switch>
+&nbsp; 
+&nbsp; 
+&nbsp; 
+<mwc-switch checked></mwc-switch>
+
+<i data-spacer></i>
+
 <mwc-dialog id="dialog" heading="Actions">
       <p>
         By setting the dialogAction="my-action" attribute on any element projected into
@@ -25,8 +34,11 @@
     </veef-dialog>
     
     <mwc-button onclick="dialog.open = true" raised>Dialog</mwc-button>
-    <mwc-button onclick="dialogOwn.open = true" raised>Custom dialog</mwc-button>
-    <i data-spacer></i>
+    <mwc-button onclick="dialogOwn.open = true" raised>veef dialog</mwc-button>
+
+
+<i data-spacer></i>
+
 
 <mwc-button label="Button"></mwc-button>
 <mwc-button raised label="Button"></mwc-button>
@@ -34,8 +46,14 @@
 
 <mwc-textfield label="Field"></mwc-textfield>
 <mwc-textfield outlined label="Field"></mwc-textfield>
-
 <br>
+
+<veef-outlinefield outlined label="Field"></veef-outlinefield>
+<veef-field outlined label="Field"></veef-field>
+<veef-button raised></veef-button>
+
+<i data-spacer></i>
+
 <div style="width: 500px">
     <mwc-list id="graphics" multi>
       <mwc-list-item twoline graphic="avatar" noninteractive hasMeta>
@@ -63,13 +81,7 @@
         <span slot="meta" class="material-icons">info</span>
       </mwc-list-item>
     </mwc-list>
-</div>
     <br>
-
-<veef-outlinefield outlined label="Field"></veef-outlinefield>
-<veef-field outlined label="Field"></veef-field>
-<veef-button raised></veef-button>
-
 
  <veef-list id="graphics" multi>
       <veef-list-item twoline graphic="avatar" noninteractive hasMeta>
@@ -97,3 +109,4 @@
         <span slot="meta" class="material-icons">info</span>
       </veef-list-item>
     </veef-list> 
+</div>

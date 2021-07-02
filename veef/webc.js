@@ -1,11 +1,21 @@
 import { h, cloneElement, render, hydrate } from '@web-mjs/preact';
 
-export default function register(Component, tagName, propNames, options) {
+function register(Component, tagName, propNames, options) {
+    var opts = {
+            domProps: [],
+            shadow: {mode: 'open', delegatesFocus: false}
+        };
+    if(typeof options !== 'undefined') {
+        if(options.shadow === true) {
+            delete options['shadow'];
+        }
+        opts = Object.assign(opts, options);
+    }
 	function PreactElement() {
 		const inst = Reflect.construct(HTMLElement, [], PreactElement);
 		inst._vdomComponent = Component;
 		inst._root =
-			options && options.shadow ? inst.attachShadow({ mode: 'open', delegatesFocus: false }) : inst;
+			opts.shadow ? inst.attachShadow( opts.shadow ) : inst;
 		return inst;
 	}
 	PreactElement.prototype = Object.create(HTMLElement.prototype);
@@ -35,14 +45,7 @@ export default function register(Component, tagName, propNames, options) {
 					this.connectedCallback();
 				}
 
-				// Reflect property changes to attributes if the value is a primitive
-				const type = typeof v;
-				if (
-					v == null ||
-					type === 'string' ||
-					type === 'boolean' ||
-					type === 'number'
-				) {
+                if(opts.domProps.indexOf(name) !== -1) {
 					this.setAttribute(name, v);
 				}
 			},
@@ -54,6 +57,8 @@ export default function register(Component, tagName, propNames, options) {
 		PreactElement
 	);
 }
+
+export default { register };
 
 function ContextProvider(props) {
 	this.getChildContext = () => props.context;

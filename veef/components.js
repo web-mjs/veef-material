@@ -14,8 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { render, html, webComponents, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
+import { render, html, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import { style as myCss } from './textfield-css.js';
+import webComponents from './webc.js'; 
 
 // shite that needs to be handled
 // aria-*, focus/active, keyboard select, multiple pointers/mobile, passive events 
@@ -234,23 +235,44 @@ webComponents.register(ListItem, 'veef-list-item', ['twoline'], {shadow: true});
 const Dialog = (props) => {
 	useEffect(() => {
 		putCss(style.current, DIALOG_CSS);
-		console.log(props);
-		if(props.open === "true") {
-			if(!dialog.current.classList.contains("mdc-dialog--open")) {
-				dialog.current.classList.add("mdc-dialog--flex");
-				setTimeout(() => dialog.current.classList.add("mdc-dialog--open"), 50);
+		const repaint = 50;
+		if(props.open === true) {
+			if(!dialog.current.classList.contains("mdc-dialog--display")) {
+				dialog.current.classList.add("mdc-dialog--display");
+				setTimeout(() => dialog.current.classList.add("mdc-dialog--open"), repaint);
+			}
+		} else {
+			if(dialog.current.classList.contains("mdc-dialog--display")) {
+				dialog.current.classList.remove("mdc-dialog--open");
+				setTimeout(() => dialog.current.classList.remove("mdc-dialog--display"), 150);
 			}
 		}
+		const KEY_ESC = 27;
+		const handleKey = (event) => { 
+			var key = event.which || event.keyCode;
+			if (key === KEY_ESC) {
+				close();
+				event.stopPropagation();
+			}
+		};
+		document.addEventListener('keyup', handleKey);
+		return () => {
+			document.removeEventListener('keyup', handleKey);
+		};
 	});
 	const style = useRef();
 	const dialog = useRef();
+	const container = useRef();
+	const close = () => {
+		dialog.current.getRootNode().host.open = false;
+	};
 	let dialogCls;
 	dialogCls = (["mdc-dialog"]).join(" ");
 	return html`
 	<style ref=${style} />
 	<div role="alertdialog" ref=${dialog} aria-modal="true" aria-labelledby="title" aria-describedby="content"
 	class="mdc-dialog">
-      <div class="mdc-dialog__container">
+      <div class="mdc-dialog__container" ref=${container}>
         <div class="mdc-dialog__surface">
       <h2 id="title" class="mdc-dialog__title">${props.heading}</h2>
           <div id="content" class="mdc-dialog__content">
@@ -266,19 +288,18 @@ const Dialog = (props) => {
           </footer>
         </div>
       </div>
-      <div class="mdc-dialog__scrim"></div>
+      <div class="mdc-dialog__scrim" onClick=${close}></div>
     </div>
 	`;
 };
-webComponents.register(Dialog, 'veef-dialog', ['heading', 'open'], {shadow: true});
+webComponents.register(Dialog, 'veef-dialog', ['heading', 'open', 'k'], {shadow: true});
 
 const DIALOG_CSS = `
 .mdc-dialog {
     display: none;
     z-index: var(--mdc-dialog-z-index, 7);
-	transition:0.2s;
 }
-.mdc-dialog--flex {
+.mdc-dialog--display {
     display: flex;
 }
 .mdc-dialog, .mdc-dialog__scrim {
@@ -398,3 +419,28 @@ const DIALOG_CSS = `
     border-top: 1px solid transparent;
 }
 `;
+
+import switchCss from './switch-css.js';
+const Switch = (props) => {
+	useEffect(() => {
+		putCss(style.current, switchCss);
+	});
+	const style = useRef();
+	const check = useRef();
+	return html`
+	<style ref=${style} />
+	<div class="mdc-switch mdc-switch--checked" ref=${check}>
+        <div class="mdc-switch__track"></div>
+        <div class="mdc-switch__thumb-underlay">
+          
+        <mwc-ripple unbounded="">
+        </mwc-ripple>
+          <div class="mdc-switch__thumb">
+            <input type="checkbox" onChange=${() => check.current.classList.toggle('mdc-switch--checked')}
+			id="basic-switch" class="mdc-switch__native-control" role="switch" aria-checked="true" />
+          </div>
+        </div>
+      </div>`;
+};
+
+webComponents.register(Switch, 'veef-switch', ['checked']);
