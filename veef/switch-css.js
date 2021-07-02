@@ -1,4 +1,4 @@
-export default `
+export const switchStyle = `
 .mdc-switch__thumb-underlay {
   left: -14px;
   right: initial;

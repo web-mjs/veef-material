@@ -87,6 +87,7 @@
     "tachometer": "^0.4.13"
   },
   "dependencies": {
-    "@web-mjs/preact": "^21.5.13"
+    "@web-mjs/preact": "^21.5.13",
+    "csso": "^4.2.0"
   }
 }
