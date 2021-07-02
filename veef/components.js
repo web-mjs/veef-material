@@ -23,6 +23,11 @@ import { style as myCss } from './textfield-css.js';
 // print?
 // fuck RTL
 
+const putCss = (el, code) => {
+	if(el.childNodes.length === 0)
+	el.appendChild(el.ownerDocument.createTextNode(code));
+}
+
 const El = () => html`<h1>yoo</h1>`;
 const FOCUSED_CLS = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
 const FOCUSED_SPAN = ["mdc-floating-label--float-above"];
@@ -59,7 +64,6 @@ const OutlineField = (props) => {
       </label>
 	<style ref=${styleRef} />`;
 };
-
 
 webComponents.register(OutlineField, 'veef-outlinefield', [], {shadow: true});
 
@@ -145,7 +149,7 @@ webComponents.register(Button, 'veef-button', [], {shadow: true});
 const ListContext = createContext();
 const MyList = (props) => {
 	useEffect(() => {
-		putCss(styleRef.current, LIST_CSS);
+		putCss(styleRef.current, listCss);
 		list.current.addEventListener('focusout', () => {
 			console.log("WTF");
 			if(ripple) ripple.endPress();
@@ -170,20 +174,15 @@ const MyList = (props) => {
 	`;
 }
 
-//import webRegister from './webc.js';
 webComponents.register(MyList, 'veef-list', [], {shadow: true});
-//webRegister(MyList, 'veef-list', [], {shadow: true});
 
-const putCss = (el, code) => {
-	console.log(el.childNodes[0]);
-	el.appendChild(el.ownerDocument.createTextNode(code));
-}
+import { listItemCss, listCss } from './list-css.js';
 
 const ListItem = (props) => {
 	const context = useContext(ListContext);
 	console.log(context);
 	useEffect(() => {
-		putCss(styleRef.current, LIST_ITEM_CSS);
+		putCss(styleRef.current, listItemCss);
 		const outerEl = styleRef.current.parentNode.host;
 		//outerEl.setAttribute('tabindex', '-1');
 		outerEl.tabIndex = -1;
@@ -232,167 +231,170 @@ const ListItem = (props) => {
 
 webComponents.register(ListItem, 'veef-list-item', ['twoline'], {shadow: true});
 
+const Dialog = (props) => {
+	useEffect(() => {
+		putCss(style.current, DIALOG_CSS);
+		console.log(props);
+		if(props.open === "true") {
+			if(!dialog.current.classList.contains("mdc-dialog--open")) {
+				dialog.current.classList.add("mdc-dialog--flex");
+				setTimeout(() => dialog.current.classList.add("mdc-dialog--open"), 50);
+			}
+		}
+	});
+	const style = useRef();
+	const dialog = useRef();
+	let dialogCls;
+	dialogCls = (["mdc-dialog"]).join(" ");
+	return html`
+	<style ref=${style} />
+	<div role="alertdialog" ref=${dialog} aria-modal="true" aria-labelledby="title" aria-describedby="content"
+	class="mdc-dialog">
+      <div class="mdc-dialog__container">
+        <div class="mdc-dialog__surface">
+      <h2 id="title" class="mdc-dialog__title">${props.heading}</h2>
+          <div id="content" class="mdc-dialog__content">
+            <slot id="contentSlot"></slot>
+          </div>
+          <footer id="actions" class="mdc-dialog__actions">
+            <span>
+              <slot name="secondaryAction"></slot>
+            </span>
+            <span>
+             <slot name="primaryAction"></slot>
+            </span>
+          </footer>
+        </div>
+      </div>
+      <div class="mdc-dialog__scrim"></div>
+    </div>
+	`;
+};
+webComponents.register(Dialog, 'veef-dialog', ['heading', 'open'], {shadow: true});
 
-const LIST_CSS = `
-:host{
-display: block;
+const DIALOG_CSS = `
+.mdc-dialog {
+    display: none;
+    z-index: var(--mdc-dialog-z-index, 7);
+	transition:0.2s;
 }
-.mdc-deprecated-list {
-    -webkit-font-smoothing: antialiased;
-    font-family: var(--mdc-typography-subtitle1-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
-    font-size: var(--mdc-typography-subtitle1-font-size, 1rem);
-    font-weight: var(--mdc-typography-subtitle1-font-weight, 400);
-    letter-spacing: var(--mdc-typography-subtitle1-letter-spacing, 0.009375em);
-    text-decoration: var(--mdc-typography-subtitle1-text-decoration, inherit);
-    text-transform: var(--mdc-typography-subtitle1-text-transform, inherit);
-    line-height: 1.5rem;
-    margin: 0px;
-    list-style-type: none;
-    color: var(--mdc-theme-text-primary-on-background, rgba(0, 0, 0, 0.87));
-    padding: var(--mdc-list-vertical-padding, 8px) 0;
-}
-`;
-const LIST_ITEM_CSS = `
-:host{
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+.mdc-dialog--flex {
     display: flex;
-    position: relative;
-    align-items: center;
-    justify-content: flex-start;
-    overflow: hidden;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    padding-left: var(--mdc-list-side-padding, 16px);
-    padding-right: var(--mdc-list-side-padding, 16px);
-    outline: none;
-    height: 48px;
-    color: var(--mdc-theme-text-primary-on-background, rgba(0, 0, 0, 0.87));
 }
-:host([graphic="medium"]:not([twoline])), :host([graphic="large"]:not([twoline])) {
-    height: 72px;
-}
-:host([graphic="avatar"]:not([twoline])), :host([graphic="icon"]:not([twoline])) {
-    height: 56px;
-}
-:host([graphic="large"]) {
-    padding-left: 0px;
-}
-.mdc-deprecated-list-item__graphic {
-    flex-shrink: 0;
+.mdc-dialog, .mdc-dialog__scrim {
+    position: fixed;
+    top: 0px;
+    left: 0px;
     align-items: center;
     justify-content: center;
-    fill: currentcolor;
-    display: inline-flex;
-}
-:host([twoline]) {
-    height: 72px;
-}
-:host([disabled]), :host([noninteractive]) {
-    cursor: default;
-    pointer-events: none;
-}
-:host([graphic="icon"]) .mdc-deprecated-list-item__graphic {
-    width: var(--mdc-list-item-graphic-size, 24px);
-    height: var(--mdc-list-item-graphic-size, 24px);
-    margin-left: 0px;
-    margin-right: var(--mdc-list-item-graphic-margin, 32px);
-}
-:host([graphic="avatar"]) .mdc-deprecated-list-item__graphic, :host([graphic="medium"]) .mdc-deprecated-list-item__graphic, :host([graphic="large"]) .mdc-deprecated-list-item__graphic, :host([graphic="control"]) .mdc-deprecated-list-item__graphic {
-    margin-left: 0px;
-    margin-right: var(--mdc-list-item-graphic-margin, 16px);
-}
-:host([graphic="avatar"]) .mdc-deprecated-list-item__graphic {
-    width: var(--mdc-list-item-graphic-size, 40px);
-    height: var(--mdc-list-item-graphic-size, 40px);
-}
-:host([graphic="medium"]) .mdc-deprecated-list-item__graphic, :host([graphic="large"]) .mdc-deprecated-list-item__graphic{
-	width: var(--mdc-list-item-graphic-size, 56px);
-    height: var(--mdc-list-item-graphic-size, 56px);
-}
-
-:host([disabled]), :host([noninteractive]) {
-    cursor: default;
-    pointer-events: none;
-}
-:host([twoline]) .mdc-deprecated-list-item__text {
-    align-self: flex-start;
-}
-.mdc-deprecated-list-item__text {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-.mdc-deprecated-list-item__meta {
-    width: var(--mdc-list-item-meta-size, 24px);
-    height: var(--mdc-list-item-meta-size, 24px);
-    margin-left: auto;
-    margin-right: 0px;
-    color: var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.38));
-}
-.mdc-deprecated-list-item__primary-text {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    margin-top: 0px;
-    line-height: normal;
-    margin-bottom: -20px;
-    display: block;
-}
-.mdc-deprecated-list-item__primary-text::before {
-    display: inline-block;
-    width: 0px;
-    height: 32px;
-    content: "";
-    vertical-align: 0px;
-}
-.mdc-deprecated-list-item__primary-text::after {
-    display: inline-block;
-    width: 0px;
-    height: 20px;
-    content: "";
-    vertical-align: -20px;
-}
-.mdc-deprecated-list-item__secondary-text {
-    -webkit-font-smoothing: antialiased;
-    font-family: var(--mdc-typography-body2-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
-    font-size: var(--mdc-typography-body2-font-size, 0.875rem);
-    font-weight: var(--mdc-typography-body2-font-weight, 400);
-    letter-spacing: var(--mdc-typography-body2-letter-spacing, 0.0178571em);
-    text-decoration: var(--mdc-typography-body2-text-decoration, inherit);
-    text-transform: var(--mdc-typography-body2-text-transform, inherit);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    margin-top: 0px;
-    line-height: normal;
-    display: block;
-}
-.mdc-deprecated-list-item__secondary-text::before {
-    display: inline-block;
-    width: 0px;
-    height: 20px;
-    content: "";
-    vertical-align: 0px;
-}
-.mdc-deprecated-list-item__meta ::slotted(.material-icons), .mdc-deprecated-list-item__meta ::slotted(mwc-icon) {
-    line-height: var(--mdc-list-item-meta-size, 24px) !important;
-}
-.mdc-deprecated-list-item__meta ::slotted(*) {
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
 }
-.mdc-deprecated-list-item__meta ::slotted(*) {
-    width: var(--mdc-list-item-meta-size, 24px);
-    line-height: var(--mdc-list-item-meta-size, 24px);
+.mdc-dialog__scrim {
+	background-color: var(--mdc-dialog-scrim-color, rgba(0, 0, 0, 0.32));
+	opacity: 0;
+	z-index: -1;
+  transition: opacity 150ms linear;
 }
-.mdc-deprecated-list-item__graphic ::slotted(*) {
-    background-color: transparent;
-    color: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
+.mdc-dialog--open .mdc-dialog__scrim {
+    opacity: 1;
 }
-.mdc-deprecated-list-item__secondary-text ::slotted(*) {
-    color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
+.mdc-dialog--open .mdc-dialog__container {
+    transform: none;
+    opacity: 1;
+}
+.mdc-dialog__container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    box-sizing: border-box;
+    height: 100%;
+    transform: scale(0.8);
+    opacity: 0;
+    pointer-events: none;
+	  transition: opacity 75ms linear, transform 150ms 0ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mdc-dialog .mdc-dialog__surface{
+    max-height: var(--mdc-dialog-max-height, calc(100% - 32px));
+    min-width: var(--mdc-dialog-min-width, 280px);
+	max-width: 80vw;
+    border-radius: var(--mdc-shape-medium, 4px);
+    background-color: var(--mdc-theme-surface, #fff);
+    box-shadow: var(--mdc-dialog-box-shadow, 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12));
+    position: relative;
+    box-shadow: rgb(0 0 0 / 20%) 0px 11px 15px -7px, rgb(0 0 0 / 14%) 0px 24px 38px 3px, rgb(0 0 0 / 12%) 0px 9px 46px 8px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    pointer-events: auto;
+    overflow-y: auto;
+}
+.mdc-dialog__surface::before {
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    border: 2px solid transparent;
+    border-radius: inherit;
+    content: "";
+    pointer-events: none;
+}
+.mdc-dialog__title {
+    display: block;
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--mdc-typography-headline6-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+    font-size: var(--mdc-typography-headline6-font-size, 1.25rem);
+    line-height: var(--mdc-typography-headline6-line-height, 2rem);
+    font-weight: var(--mdc-typography-headline6-font-weight, 500);
+    letter-spacing: var(--mdc-typography-headline6-letter-spacing, 0.0125em);
+    text-decoration: var(--mdc-typography-headline6-text-decoration, inherit);
+    text-transform: var(--mdc-typography-headline6-text-transform, inherit);
+    position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    margin: 0px 0px 1px;
+    padding: 0px 24px 9px;
+}
+.mdc-dialog__title::before {
+    display: inline-block;
+    width: 0px;
+    height: 40px;
+    content: "";
+    vertical-align: 0px;
+}
+.mdc-dialog .mdc-dialog__content{
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--mdc-typography-body1-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+    font-size: var(--mdc-typography-body1-font-size, 1rem);
+    line-height: var(--mdc-typography-body1-line-height, 1.5rem);
+    font-weight: var(--mdc-typography-body1-font-weight, 400);
+    letter-spacing: var(--mdc-typography-body1-letter-spacing, 0.03125em);
+    text-decoration: var(--mdc-typography-body1-text-decoration, inherit);
+    text-transform: var(--mdc-typography-body1-text-transform, inherit);
+    flex-grow: 1;
+    box-sizing: border-box;
+    margin: 0px;
+    overflow: auto;
+    padding: 20px 24px;
+    padding-top: 0px;
+}
+.mdc-dialog__actions {
+    display: flex;
+    position: relative;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    min-height: 52px;
+    margin: 0px;
+    padding: 8px;
+    border-top: 1px solid transparent;
 }
 `;
-

@@ -3,6 +3,8 @@ const useCls = (initialList) => {
     let initArg;
     if(typeof initialList === "undefined" || initialList === null) {
         initArg = [];
+    } else if(typeof initialList === "string") {
+        initArg = [initialList];
     } else {
         initArg = initialList;
     }
