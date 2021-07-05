@@ -68,13 +68,19 @@ export const tabStyle = `
     box-sizing: border-box;
     margin: 0px;
     border: none;
-    outline: none;
     background: none;
     text-align: center;
     white-space: nowrap;
     cursor: pointer;
     appearance: none;
     z-index: 1;
+}
+.mdc-tab:focus {
+   outline: none;
+   background: var(--focus-color, #6200ee10);
+}
+.mdc-tab.mdc-tab--active:focus {
+    background: none;
 }
 .mdc-tab {
     -webkit-font-smoothing: antialiased;
@@ -111,9 +117,10 @@ export const tabStyle = `
     z-index: 2;
 }
 
-.mdc-tab--active .mdc-tab__text-label {
+.mdc-tab--active .mdc-tab__text-label{
     color: var(--mdc-theme-primary, #6200ee);
 }
+
 .mdc-tab-indicator {
     display: flex;
     position: absolute;
