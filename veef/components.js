@@ -1,19 +1,3 @@
-/**
-@license
-Copyright 2019 Google Inc. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 import { render, html, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import webComponents from './webc.js'; 
 
@@ -23,10 +7,17 @@ import webComponents from './webc.js';
 // print?
 // fuck RTL
 
-const putCss = (el, code) => {
-	if(el.childNodes.length === 0)
-	el.appendChild(el.ownerDocument.createTextNode(code));
-}
+
+const cssRef = (code) => {
+	const setInnerCss = (el) => {
+		if(el.childNodes.length === 0)
+		el.appendChild(el.ownerDocument.createTextNode(code));
+	}
+
+	const r = useRef();
+	useEffect(() => setInnerCss(r.current));
+	return r;
+};
 
 const El = () => html`<h1>yoo</h1>`;
 const FOCUSED_CLS = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
@@ -37,7 +28,6 @@ import useCls from './classList';
 import { textFieldStyle as myCss } from './textfield2-css';
 const OutlineField = (props) => {
 	useEffect(() => {
-		putCss(styleRef.current, myCss);
 		outline.current.width = 100;
 	});
 	const onClick = () => { 
@@ -63,7 +53,7 @@ const OutlineField = (props) => {
       </mwc-notched-outline>
       <input aria-labelledby="label" class="mdc-text-field__input" onFocus=${onClick} onBlur=${blur} type="text" placeholder="" />
       </label>
-	<style ref=${styleRef} />`;
+	<style ref=${cssRef(myCss)} />`;
 };
 
 webComponents.register(OutlineField, 'veef-outlinefield', [], {shadow: true});
@@ -71,9 +61,6 @@ webComponents.register(OutlineField, 'veef-outlinefield', [], {shadow: true});
 
 const CasualField = () => {
 	const FOC = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
-	useEffect(() => {
-		styleRef.current.innerText = myCss;
-	});
 	const onClick = () => {
 		labelCls.addAll(FOC);
 		spanCls.add("mdc-floating-label--float-above");
@@ -93,7 +80,7 @@ const CasualField = () => {
       <input ref=${nativeInput} onBlur=${onBlur} onFocus=${onClick} aria-labelledby="label" class="mdc-text-field__input" type="text" placeholder=""/>
       <span class="mdc-line-ripple" style="transform-origin: 103px center;"></span>
       </label>
-	<style ref=${styleRef} />`;
+	<style ref=${cssRef(myCss)} />`;
 };
 webComponents.register(CasualField, 'veef-field', [], {shadow: true});
 
@@ -101,7 +88,6 @@ import { buttonStyle } from './button-css';
 const Button = () => {
 	const FOC = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
 	useEffect(() => {
-		putCss(styleRef.current, buttonStyle);
 		rippleRef.current.primary = false;
 		buttonRef.current.addEventListener('mousedown', (e) => {
 			rippleRef.current.startPress(e);
@@ -143,14 +129,13 @@ const Button = () => {
           </slot>
         </span>
       </button>
-	<style ref=${styleRef} />`;
+	<style ref=${cssRef(buttonStyle)} />`;
 };
 webComponents.register(Button, 'veef-button', [], {shadow: true});
 
 const ListContext = createContext();
 const MyList = (props) => {
 	useEffect(() => {
-		putCss(styleRef.current, listCss);
 		list.current.addEventListener('focusout', () => {
 			console.log("WTF");
 			if(ripple) ripple.endPress();
@@ -166,7 +151,7 @@ const MyList = (props) => {
 	}; */
 	const list = useRef();
 	return html`
-	<style ref=${styleRef} />
+	<style ref=${cssRef(listCss)} />
 	<${ListContext.Provider} value=${{setRipple}} >
 	<ul class="mdc-deprecated-list" ref=${list} tabindex="-1">
 	${props.children}
@@ -183,8 +168,7 @@ const ListItem = (props) => {
 	const context = useContext(ListContext);
 	console.log(context);
 	useEffect(() => {
-		putCss(styleRef.current, listItemCss);
-		const outerEl = styleRef.current.parentNode.host;
+		const outerEl = ripple.current.parentNode.host;
 		//outerEl.setAttribute('tabindex', '-1');
 		outerEl.tabIndex = -1;
 		outerEl.setAttribute('aria-disabled', false);
@@ -207,7 +191,6 @@ const ListItem = (props) => {
 			ripple.current.endHover();
 		});
 	});
-	const styleRef = useRef();
 	const ripple = useRef();
 	console.log(props);
 	let textSlot = html`
@@ -222,7 +205,7 @@ const ListItem = (props) => {
 		`;
 	} 
 	return html`
-	<style ref=${styleRef} />
+	<style ref=${cssRef(listItemCss)} />
 	<mwc-ripple ref=${ripple} />
 	<span class="mdc-deprecated-list-item__graphic material-icons"><slot name="graphic" /></span>
 	${textSlot}
@@ -235,7 +218,6 @@ webComponents.register(ListItem, 'veef-list-item', ['twoline'], {shadow: true});
 import { dialogStyle } from './dialog-css';
 const Dialog = (props) => {
 	useEffect(() => {
-		putCss(style.current, dialogStyle);
 		const repaint = 50;
 		if(props.open === true) {
 			if(!dialog.current.classList.contains("mdc-dialog--display")) {
@@ -270,7 +252,7 @@ const Dialog = (props) => {
 	let dialogCls;
 	dialogCls = (["mdc-dialog"]).join(" ");
 	return html`
-	<style ref=${style} />
+	<style ref=${cssRef(dialogStyle)} />
 	<div role="alertdialog" ref=${dialog} aria-modal="true" aria-labelledby="title" aria-describedby="content"
 	class="mdc-dialog">
       <div class="mdc-dialog__container" ref=${container}>
@@ -297,13 +279,10 @@ webComponents.register(Dialog, 'veef-dialog', ['heading', 'open', 'k'], {shadow:
 
 import { switchStyle } from './switch-css.js';
 const Switch = (props) => {
-	useEffect(() => {
-		putCss(style.current, switchStyle);
-	});
 	const style = useRef();
 	const check = useRef();
 	return html`
-	<style ref=${style} />
+	<style ref=${cssRef(switchStyle)} />
 	<div class="mdc-switch mdc-switch--checked" ref=${check}>
         <div class="mdc-switch__track"></div>
         <div class="mdc-switch__thumb-underlay">
@@ -319,3 +298,96 @@ const Switch = (props) => {
 };
 
 webComponents.register(Switch, 'veef-switch', ['checked']);
+
+
+import { tabStyle, tabGroupStyle } from './tabgroup-css.js';
+
+const SingleTab = (props) => {
+	const tabCtx = useContext(TabContext);
+	const tabClasses = ['mdc-tab'];
+
+	let thisActive = false;
+	if(tabCtx.active.key === props.tabKey)  {
+		thisActive = true;
+		tabClasses.push('mdc-tab--active');
+	}
+	const activeIndicator = 'mdc-tab-indicator--active';
+	useEffect(() => {
+		const hostNode = btn.current.parentNode.host;
+		if(thisActive && !indicator.current.classList.contains(activeIndicator)){
+			if(tabCtx.previousActive.key !== null) {
+				const ourPos = btn.current.getBoundingClientRect();
+				const prevPos = tabCtx.previousActive.btnNode.getBoundingClientRect();
+				const pos = prevPos.left - ourPos.left;
+				indicatorLine.current.classList.remove('transition-cls');
+				indicatorLine.current.style.setProperty('--tranX', `${Math.round(pos)}px`);
+			}
+			indicatorLine.current.getBoundingClientRect();
+			indicatorLine.current.classList.add('transition-cls');
+			indicatorLine.current.style.setProperty('--tranX', `0px`);
+			indicator.current.classList.add(activeIndicator);
+			indicatorLine.current.getBoundingClientRect();
+		}
+		if(!thisActive)
+			indicator.current.classList.remove(activeIndicator);
+	});
+	const btn = useRef();
+	const onClick = (e) => {
+		tabCtx.onClick({key: props.tabKey, e: e, btnNode: btn.current});
+	};
+
+	const indicator = useRef();
+	const indicatorLine = useRef();
+	return html`
+	<button ref=${btn} role="tab"
+	onClick=${onClick} aria-selected="true" tabindex="0" class=${tabClasses.join(" ")}>
+        <span class="mdc-tab__content">
+        <span class="mdc-tab__text-label">${props.children}</span>
+        </span>
+		<span class="mdc-tab-indicator" ref=${indicator}>
+		<span ref=${indicatorLine} class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"/>
+		</span>
+      </button>
+	  <style ref=${cssRef(tabStyle)} />
+	`;
+};
+
+webComponents.register(SingleTab, 'veef-tab', ['tabKey'], {shadow: true, domProps: ['tabKey']});
+
+const TabContext = createContext();
+const TabGroup = (props) => {
+	let [active, setActive] = useState({key: null, e: null, btnNode: null});
+	let [previousActive, setPrev] = useState({key: null, e: null, btnNode: null});
+	const tabCtx = {
+		onClick: (data) => {
+			if(active) {
+				setPrev(active)
+			}
+			setActive({key: data.key, e: data.e, btnNode: data.btnNode})
+		},
+		active,
+		previousActive
+	}
+	console.log(active);
+	console.log(previousActive);
+	const tabs = useRef();
+	return html`
+	<style ref=${cssRef(tabGroupStyle)} />
+	<div class="mdc-tab-bar">
+		<div class="scr-wrap">
+			<div class="mdc-tab-scroller">
+				<div class="mdc-tab-scroller__scroll-area mdc-tab-scroller__scroll-area--scroll"
+				style="margin-bottom: 0px;">
+					<div ref=${tabs} class="mdc-tab-scroller__scroll-content">
+					<${TabContext.Provider} value=${tabCtx}>
+					${props.children}
+					<//>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	`;
+}
+
+webComponents.register(TabGroup, 'veef-tabgroup', [], {shadow: true});

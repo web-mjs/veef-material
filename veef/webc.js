@@ -3,19 +3,18 @@ import { h, cloneElement, render, hydrate } from '@web-mjs/preact';
 function register(Component, tagName, propNames, options) {
     var opts = {
             domProps: [],
-            shadow: {mode: 'open', delegatesFocus: false}
+            shadow: true,
+            shadowOpts: {mode: 'open', delegatesFocus: false}
         };
     if(typeof options !== 'undefined') {
-        if(options.shadow === true) {
-            delete options['shadow'];
-        }
         opts = Object.assign(opts, options);
     }
+
 	function PreactElement() {
 		const inst = Reflect.construct(HTMLElement, [], PreactElement);
 		inst._vdomComponent = Component;
 		inst._root =
-			opts.shadow ? inst.attachShadow( opts.shadow ) : inst;
+			opts.shadow ? inst.attachShadow( opts.shadowOpts ) : inst;
 		return inst;
 	}
 	PreactElement.prototype = Object.create(HTMLElement.prototype);

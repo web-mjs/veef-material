@@ -1,4 +1,4 @@
-const dialogStyle = `
+export const dialogStyle = `
 .mdc-dialog {
     display: none;
     z-index: var(--mdc-dialog-z-index, 7);
@@ -123,5 +123,3 @@ const dialogStyle = `
     border-top: 1px solid transparent;
 }
 `;
-
-export { dialogStyle };
