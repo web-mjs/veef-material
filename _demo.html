@@ -1,12 +1,8 @@
-<link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
 <script src="mwc-bundle.js"></script>
 <script src="custom-bundle.js"></script>
 <style>i[data-spacer]{display:block;height:150px;}</style>
 
-<veef-checkbox>
-</veef-checkbox>
-
-<i data-spacer></i>
 
 
 <mwc-tab-bar>
@@ -30,6 +26,12 @@
 &nbsp; 
 &nbsp; 
 <mwc-switch checked></mwc-switch>
+&nbsp; 
+&nbsp; 
+&nbsp; 
+<veef-checkbox>
+</veef-checkbox>
+<mwc-checkbox></mwc-checkbox>
 
 <i data-spacer></i>
 
@@ -67,46 +69,23 @@
 
 <mwc-button raised label="Button"></mwc-button>
 <mwc-button unelevated label="Button"></mwc-button>
-<mwc-button label="Button"></mwc-button>
+<mwc-button unelevated icon="code" label="Button" trailingIcon></mwc-button>
+<mwc-button unelevated icon="code" label="Button"></mwc-button>
 
 <br>
 
 <veef-field outlined label="Field"></veef-field>
 <veef-outlinefield outlined label="Field"></veef-outlinefield>
 
-<veef-button raised></veef-button>
-<veef-button unelevated></veef-button>
+<veef-button raised>Kopce
+    <slot name="icon">
+    </slot>
+</veef-button>
+<veef-button unelevated>Primer</veef-button>
 
 <i data-spacer></i>
 
-<div style="width: 500px">
-    <mwc-list id="graphics" multi>
-      <mwc-list-item twoline graphic="avatar" noninteractive hasMeta>
-        <span>Non-interactive two line avatar graphic</span>
-        <span slot="secondary">email@domain.tld</span>
-        <span slot="graphic" class="material-icons">folder</span>
-        <span slot="meta" class="material-icons">info</span>
-      </mwc-list-item>
-      <li divider role="separator"></li>
-      <mwc-list-item graphic="icon" hasMeta>
-        <span>Icon graphic</span>
-        <span slot="graphic" class="material-icons">folder</span>
-        <span slot="meta" class="material-icons">info</span>
-      </mwc-list-item>
-      <li divider inset role="separator"></li>
-      <mwc-list-item graphic="medium" hasMeta>
-        <span>medium graphic</span>
-        <span slot="graphic" class="material-icons">folder</span>
-        <span slot="meta" class="material-icons">info</span>
-      </mwc-list-item>
-      <li divider inset role="separator"></li>
-      <mwc-list-item graphic="large" hasMeta>
-        <span>large graphic</span>
-        <span slot="graphic" class="material-icons">folder</span>
-        <span slot="meta" class="material-icons">info</span>
-      </mwc-list-item>
-    </mwc-list>
-    <br>
+<br>
 
  <veef-list id="graphics" multi>
       <veef-list-item twoline graphic="avatar" noninteractive hasMeta>
