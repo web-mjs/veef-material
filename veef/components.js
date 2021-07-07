@@ -287,7 +287,7 @@ const Switch = (props) => {
       </div>`;
 };
 
-webComponents.register(Switch, 'veef-switch', ['checked']);
+webComponents.register(Switch, 'vf-switch', ['checked']);
 
 
 import { tabStyle, tabGroupStyle } from './tabgroup-css.js';

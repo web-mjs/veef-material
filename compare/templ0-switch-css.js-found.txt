@@ -1,4 +1,4 @@
-export const switchStyle = `
+
 .switch-thumb-under {
   left: -14px;
   right: initial;
@@ -100,4 +100,3 @@ export const switchStyle = `
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
-`;

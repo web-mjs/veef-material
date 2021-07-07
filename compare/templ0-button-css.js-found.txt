@@ -1,4 +1,4 @@
-export const buttonStyle = `
+
 :host([raised]), :host([unelevated]) {
     --mdc-ripple-color: #fff;
     --mdc-ripple-focus-opacity: 0.24;
@@ -43,4 +43,3 @@ export const buttonStyle = `
     font-weight: 500;
     text-transform: uppercase;
 }
-`;
