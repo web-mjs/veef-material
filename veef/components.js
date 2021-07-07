@@ -273,15 +273,15 @@ const Switch = (props) => {
 	const check = useRef();
 	return html`
 	<style ref=${cssRef(switchStyle)} />
-	<div class="mdc-switch mdc-switch--checked" ref=${check}>
-        <div class="mdc-switch__track"></div>
-        <div class="mdc-switch__thumb-underlay">
+	<div class="switch switch-checked" ref=${check}>
+        <div class="switch-track"></div>
+        <div class="switch-thumb-under">
           
         <mwc-ripple unbounded="">
         </mwc-ripple>
-          <div class="mdc-switch__thumb">
-            <input type="checkbox" onChange=${() => check.current.classList.toggle('mdc-switch--checked')}
-			id="basic-switch" class="mdc-switch__native-control" role="switch" aria-checked="true" />
+          <div class="switch-thumb">
+            <input type="checkbox" onChange=${() => check.current.classList.toggle('switch-checked')}
+			id="basic-switch" class="native-input" role="switch" aria-checked="true" />
           </div>
         </div>
       </div>`;
@@ -390,7 +390,7 @@ const TabGroup = (props) => {
 	`;
 }
 
-webComponents.register(TabGroup, 'veef-tabgroup', [], {shadow: true});
+webComponents.register(TabGroup, 'vf-tabgroup', [], {shadow: true});
 
 const Checkbox = (props) => {
 	useEffect(() => {
@@ -425,6 +425,47 @@ const Checkbox = (props) => {
 	</div>
 	`;
 }
+
+const Icon = (props) => {
+const SVG_DATA={
+	"add":"~M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z^",
+	"arrow-down":"~M7 10l5 5 5-5H7z^",
+	"chev-left":"~M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z^",
+	"chev-right":"~M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z^",
+	"chev-down":"~M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6-1.41-1.41z^",
+	"dark-mode":"~M9.4 5.5a7.4 7.4 0 009.1 9.1 7 7 0 11-9.1-9zM12 3a9 9 0 108.9 7.6 5.4 5.4 0 01-9.8-3.1c0-1.8.9-3.4 2.3-4.4L12 3z^",
+	"delete":"~M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z^",
+	"done":"~M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z^",
+	"error":"~M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z^",
+	"like":"~M12 21.4L10.6 20C5.4 15.4 2 12.3 2 8.5 2 5.5 4.4 3 7.5 3A6 6 0 0112 5a6 6 0 014.5-2c3 0 5.5 2.4 5.5 5.5 0 3.8-3.4 6.9-8.6 11.5L12 21.4z^",
+	"download":"<g>~M18 15v3H6v-3H4v3c0 1.1 0.9 2 2 2h12c1.1 0 2-0.9 2-2v-3H18z M17 11l-1.41-1.41L13 12.17V4h-2v8.17L8.41 9.59L7 11l5 5 L17 11z^</g>",
+	"upload":"<g>~M18 15v3H6v-3H4v3c0 1.1 0.9 2 2 2h12c1.1 0 2-0.9 2-2v-3H18z M7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5L7 9z^</g>",
+	"folder":"~M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z^",
+	"home":"~M12 5.69l5 4.5V18h-2v-6H9v6H7v-7.81l5-4.5M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z^",
+	"light-mode":"~M7 5L5 3 4 4l1 2zm-6 6h3v2H1zM11 1h2v3h-2zm8 2l1 1-1 2-2-1zm-2 15l2 2 1-1-1-2zm3-7h3v2h-3zm-8-5a6 6 0 100 12 6 6 0 000-12zm0 10a4 4 0 110-8 4 4 0 010 8zm-1 4h2v2h-2zm-7-1l1 1 2-2-2-1z^",
+	"pin":"~M12 2a7 7 0 00-7 7c0 5.3 7 13 7 13s7-7.8 7-13a7 7 0 00-7-7zM7 9a5 5 0 0110 0c0 2.9-2.9 7.2-5 9.9-2-2.7-5-7-5-9.9z^<circle cx=12 cy=9 r=2.5 />",
+	"lock":"~M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z^",
+	"login":"~M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5L11 7z M20 19h-8v2h8c1.1 0 2-0.9 2-2V5c0-1.1-0.9-2-2-2h-8v2h8V19z^",
+	"logout":"~M17 8l-1.41 1.41L17.17 11H9v2h8.17l-1.58 1.58L17 16l4-4L17 8z M5 5h7V3H5C3.9 3 3 3.9 3 5v14c0 1.1 0.9 2 2 2h7v-2H5V5z^",
+	"dots":"~M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z^",
+	"refresh":"~M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z^",
+	"search":"~M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z^"};	
+	
+	useEffect(() => {
+		let iconData = SVG_DATA['home'];
+		const wantedIcon = props.domElement.innerHTML.trim();
+		if(wantedIcon in SVG_DATA) {
+			iconData = SVG_DATA[wantedIcon];
+		}
+		iconData = iconData.replaceAll('~','<path d="').replaceAll('^', '"/>');
+		svg.current.innerHTML = iconData;
+	});
+	const svg = useRef();
+	const w=32, h=32;
+	return html`<svg xmlns="http://www.w3.org/2000/svg" width=${w} height=${h} ref=${svg} viewBox="0 0 24 24" fill="#000000"></svg>`;
+};
+webComponents.register(Icon, 'vf-icon');
+
 const CSTYLE = `
 .mdc-checkbox{
 	width: 40px;

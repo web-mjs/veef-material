@@ -143,6 +143,7 @@ function toVdom(element, nodeName) {
 		i = 0,
 		a = element.attributes,
 		cn = element.childNodes;
+    props['domElement'] = element;
 	for (i = a.length; i--; ) {
 		if (a[i].name !== 'slot') {
 			props[a[i].name] = a[i].value;
