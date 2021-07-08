@@ -1,5 +1,5 @@
 const textFieldStyle = `
-.mdc-text-field--outlined .mdc-notched-outline {
+.textfield--outlined .mdc-notched-outline {
     z-index: 1;
 }
 .mdc-notched-outline {
@@ -16,12 +16,12 @@ const textFieldStyle = `
     pointer-events: none;
 }
 mwc-notched-outline {
-    --mdc-notched-outline-border-color: var( --mdc-text-field-outlined-idle-border-color, rgba(0, 0, 0, 0.38) );
+    --mdc-notched-outline-border-color: var( --textfield-outlined-idle-border-color, rgba(0, 0, 0, 0.38) );
 }
-.mdc-text-field.mdc-text-field--focused:not(.mdc-text-field--invalid) mwc-notched-outline {
-    --mdc-notched-outline-border-color: var( --mdc-text-field-focused-label-color, var(--mdc-theme-primary, rgba(98, 0, 238, 0.87)) );
+.textfield.textfield--focused:not(.textfield--invalid) mwc-notched-outline {
+    --mdc-notched-outline-border-color: var( --textfield-focused-label-color, var(--mdc-theme-primary, rgba(98, 0, 238, 0.87)) );
 }
-.mdc-text-field.mdc-text-field--focused mwc-notched-outline {
+.textfield.textfield--focused mwc-notched-outline {
     --mdc-notched-outline-stroke-width: 2px;
 }
 :host {
@@ -29,20 +29,20 @@ mwc-notched-outline {
     flex-direction: column;
     outline: none;
 }
-.mdc-text-field:not(.mdc-text-field--outlined) {
-    background-color: var(--mdc-text-field-fill-color,whitesmoke);
+.textfield:not(.textfield--outlined) {
+    background-color: var(--textfield-fill-color,whitesmoke);
 }
 
-.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+.textfield--filled:not(.textfield--disabled) {
     background-color: #f5f5f5;
 }
-.mdc-text-field {
+.textfield {
     width: 100%;
 }
-.mdc-text-field--filled {
+.textfield--filled {
     height: 56px;
 }
-.mdc-text-field {
+.textfield {
     border-top-left-radius: 4px;
     border-top-left-radius: var(--mdc-shape-small,4px);
     border-top-right-radius: 4px;
@@ -57,18 +57,18 @@ mwc-notched-outline {
     overflow: hidden;
     will-change: opacity,transform,color;
 }
-.mdc-text-field--outlined {
+.textfield--outlined {
     padding-right: max(16px, var(--mdc-shape-small, 4px));
 }
-.mdc-text-field--outlined {
+.textfield--outlined {
     padding-left: max(16px, calc(var(--mdc-shape-small, 4px) + 4px));
 }
-.mdc-text-field--outlined {
+.textfield--outlined {
     height: 56px;
     overflow: visible;
 }
 
-.mdc-text-field--filled {
+.textfield--filled {
     --mdc-ripple-fg-size: 0;
     --mdc-ripple-left: 0;
     --mdc-ripple-top: 0;
@@ -78,14 +78,14 @@ mwc-notched-outline {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     will-change: transform,opacity;
 }
-.mdc-text-field--filled::before {
+.textfield--filled::before {
     display: inline-block;
     width: 0;
     height: 40px;
     content: "";
     vertical-align: 0;
 }
-.mdc-text-field__ripple {
+.textfield__ripple {
     position: absolute;
     top: 0;
     left: 0;
@@ -93,52 +93,52 @@ mwc-notched-outline {
     height: 100%;
     pointer-events: none;
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before, .mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::before, .textfield--filled .textfield__ripple::after {
     background-color: var(--mdc-ripple-color,rgba(0,0,0,0.87));
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before, .mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::before, .textfield--filled .textfield__ripple::after {
     top: calc(50% - 100%);
     left: calc(50% - 100%);
     width: 200%;
     height: 200%;
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before {
+.textfield--filled .textfield__ripple::before {
     transition: opacity 15ms linear,background-color 15ms linear;
     z-index: var(--mdc-ripple-z-index,1);
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before, .mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::before, .textfield--filled .textfield__ripple::after {
     position: absolute;
     border-radius: 50%;
     opacity: 0;
     pointer-events: none;
     content: "";
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before, .mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::before, .textfield--filled .textfield__ripple::after {
     background-color: var(--mdc-ripple-color,rgba(0,0,0,0.87));
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before, .mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::before, .textfield--filled .textfield__ripple::after {
     top: calc(50% - 100%);
     left: calc(50% - 100%);
     width: 200%;
     height: 200%;
 }
-.mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::after {
     z-index: var(--mdc-ripple-z-index,0);
 }
-.mdc-text-field--filled .mdc-text-field__ripple::before, .mdc-text-field--filled .mdc-text-field__ripple::after {
+.textfield--filled .textfield__ripple::before, .textfield--filled .textfield__ripple::after {
     position: absolute;
     border-radius: 50%;
     opacity: 0;
     pointer-events: none;
     content: "";
 }
-.mdc-text-field:not(.mdc-text-field--invalid):not(.mdc-text-field--focused) .mdc-floating-label, .mdc-text-field:not(.mdc-text-field--focused) .mdc-floating-label::after {
-    color: var(--mdc-text-field-label-ink-color,rgba(0,0,0,0.6));
+.textfield:not(.textfield--invalid):not(.textfield--focused) .mdc-floating-label, .textfield:not(.textfield--focused) .mdc-floating-label::after {
+    color: var(--textfield-label-ink-color,rgba(0,0,0,0.6));
 }
-.mdc-text-field .mdc-floating-label {
+.textfield .mdc-floating-label {
     color: rgba(0,0,0,0.6);
 }
-.mdc-text-field--filled .mdc-floating-label {
+.textfield--filled .mdc-floating-label {
     left: 16px;
     right: initial;
 }
@@ -146,11 +146,11 @@ mwc-notched-outline {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
 	font-family: var(--vfont, -apple-system, BlinkMacSystemFont, "Segoe UI", "Liberation Sans", sans-serif);
-    font-size: var(--mdc-typography-subtitle1-font-size,1rem);
-    font-weight: var(--mdc-typography-subtitle1-font-weight,400);
-    letter-spacing: var(--mdc-typography-subtitle1-letter-spacing,0.009375em);
-    text-decoration: var(--mdc-typography-subtitle1-text-decoration,inherit);
-    text-transform: var(--mdc-typography-subtitle1-text-transform,inherit);
+    font-size: var(t-1-font-size,1rem);
+    font-weight: var(t-1-font-weight,400);
+    letter-spacing: var(t-1-letter-spacing,0.009375em);
+    text-decoration: var(t-1-text-decoration,inherit);
+    text-transform: var(t-1-text-transform,inherit);
     position: absolute;
     left: 0;
     -webkit-transform-origin: left top;
@@ -164,19 +164,19 @@ mwc-notched-outline {
     will-change: transform;
     transition: transform 150ms cubic-bezier(0.4,0,0.2,1),color 150ms cubic-bezier(0.4,0,0.2,1);
 }
-.mdc-text-field--outlined .mdc-floating-label {
+.textfield--outlined .mdc-floating-label {
     left: 5px;
     right: initial;
 	display: inline-block;
     position: relative;
     max-width: 100%;
 }
-.mdc-text-field .mdc-floating-label {
+.textfield .mdc-floating-label {
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
 }
-.mdc-text-field--filled .mdc-floating-label {
+.textfield--filled .mdc-floating-label {
     left: 16px;
     right: initial;
 }
@@ -184,24 +184,24 @@ mwc-notched-outline {
     transform: translateY(-106%) scale(0.75);
 }
 
-.mdc-text-field .mdc-text-field__input{
-    color: var(--mdc-text-field-ink-color,rgba(0,0,0,0.87));
+.textfield .textfield__input{
+    color: var(--textfield-ink-color,rgba(0,0,0,0.87));
 }
-.mdc-text-field .mdc-text-field__input {
+.textfield .textfield__input {
     color: rgba(0,0,0,0.87);
 }
-.mdc-text-field .mdc-text-field__input {
+.textfield .textfield__input {
     caret-color: var(--mdc-theme-primary,#6200ee);
 }
-.mdc-text-field__input {
+.textfield__input {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
 	font-family: var(--vfont, -apple-system, BlinkMacSystemFont, "Segoe UI", "Liberation Sans", sans-serif);
-    font-size: var(--mdc-typography-subtitle1-font-size,1rem);
-    font-weight: var(--mdc-typography-subtitle1-font-weight,400);
-    letter-spacing: var(--mdc-typography-subtitle1-letter-spacing,0.009375em);
-    text-decoration: var(--mdc-typography-subtitle1-text-decoration,inherit);
-    text-transform: var(--mdc-typography-subtitle1-text-transform,inherit);
+    font-size: var(t-1-font-size,1rem);
+    font-weight: var(t-1-font-weight,400);
+    letter-spacing: var(t-1-letter-spacing,0.009375em);
+    text-decoration: var(t-1-text-decoration,inherit);
+    text-transform: var(t-1-text-transform,inherit);
     height: 28px;
     transition: opacity 150ms 0 cubic-bezier(0.4,0,0.2,1);
     width: 100%;
@@ -212,10 +212,10 @@ mwc-notched-outline {
     appearance: none;
     padding: 0;
 }
-.mdc-text-field .mdc-line-ripple::before {
-    border-bottom-color: var(--mdc-text-field-idle-line-color,rgba(0,0,0,0.42));
+.textfield .mdc-line-ripple::before {
+    border-bottom-color: var(--textfield-idle-line-color,rgba(0,0,0,0.42));
 }
-.mdc-text-field--filled .mdc-line-ripple::before {
+.textfield--filled .mdc-line-ripple::before {
     border-bottom-color: rgba(0,0,0,0.42);
 }
 .mdc-line-ripple::before {
@@ -230,7 +230,7 @@ mwc-notched-outline {
     border-bottom-style: solid;
     content: "";
 }
-.mdc-text-field--filled .mdc-line-ripple::after {
+.textfield--filled .mdc-line-ripple::after {
     border-bottom-color: var(--mdc-theme-primary,#6200ee);
 }
 .mdc-line-ripple::after {
@@ -248,20 +248,20 @@ mwc-notched-outline {
     border-bottom-style: solid;
     content: "";
 }
-.mdc-text-field.mdc-text-field--focused:not(.mdc-text-field--invalid) .mdc-floating-label {
+.textfield.textfield--focused:not(.textfield--invalid) .mdc-floating-label {
     color: #6200ee;
     color: var(--mdc-theme-primary,#6200ee);
 }
-.mdc-text-field--focused .mdc-floating-label {
+.textfield--focused .mdc-floating-label {
     color: rgba(98,0,238,0.87);
 }
-.mdc-text-field .mdc-floating-label {
+.textfield .mdc-floating-label {
     color: rgba(0,0,0,0.6);
 }
-.mdc-text-field--filled .mdc-floating-label--float-above {
+.textfield--filled .mdc-floating-label--float-above {
     transform: translateY(-106%) scale(0.75);
 }
-.mdc-text-field--filled .mdc-floating-label {
+.textfield--filled .mdc-floating-label {
     left: 16px;
     right: initial;
 }
@@ -271,25 +271,25 @@ mwc-notched-outline {
 .mdc-floating-label--float-above {
     cursor: auto;
 }
-.mdc-text-field__input:focus {
+.textfield__input:focus {
     outline: none;
 }
-.mdc-text-field--outlined .mdc-text-field__input {
+.textfield--outlined .textfield__input {
     display: flex;
     background-color: transparent;
     border: none !important;
 }
-.mdc-text-field--outlined .mdc-text-field__input {
+.textfield--outlined .textfield__input {
     height: 100%;
 }
-.mdc-text-field--outlined .mdc-floating-label {
+.textfield--outlined .mdc-floating-label {
     left: 4px;
     right: initial;
 }
-.mdc-text-field--outlined .mdc-floating-label--float-above {
+.textfield--outlined .mdc-floating-label--float-above {
     font-size: 0.75rem;
 }
-.mdc-text-field--outlined .mdc-floating-label--float-above {
+.textfield--outlined .mdc-floating-label--float-above {
     transform: translateY(-37.25px) scale(1);
 }
 `;

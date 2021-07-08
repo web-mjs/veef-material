@@ -1,6 +1,7 @@
 import { render, html, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import webComponents from './webc.js'; 
 
+// Show HN: Complex web apps in 30KB using Web Modules without transpiling JS
 // shite that needs to be handled
 // aria-*, focus/active, keyboard select, multiple pointers/mobile, passive events 
 // use <label>
@@ -19,7 +20,7 @@ const cssRef = (code) => {
 	return r;
 };
 
-const FOCUSED_CLS = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
+const FOCUSED_CLS = ["textfield--focused", "textfield--label-floating"];
 const FOCUSED_SPAN = ["mdc-floating-label--float-above"];
 
 import { textFieldStyle as myCss } from './textfield-css';
@@ -40,14 +41,14 @@ const OutlineField = (props) => {
 
 	const outline = useRef();
 	const styleRef = useRef();
-	const [cls, setCls] = useState(["mdc-text-field","mdc-text-field--outlined"]);
+	const [cls, setCls] = useState(["textfield","textfield--outlined"]);
 	const [spanCls, setSpanCls] = useState([]);
 	return html`
 	<label class=${cls.join(" ")}>
       <mwc-notched-outline class="mdc-notched-outline" ref=${outline}>
       <span id="label" class=${["mdc-floating-label", ...spanCls].join(" ")}>Example</label>
       </mwc-notched-outline>
-      <input aria-labelledby="label" class="mdc-text-field__input" onFocus=${onClick} onBlur=${blur} type="text" placeholder="" />
+      <input aria-labelledby="label" class="textfield__input" onFocus=${onClick} onBlur=${blur} type="text" placeholder="" />
       </label>
 	<style ref=${cssRef(myCss)} />`;
 };
@@ -56,9 +57,9 @@ webComponents.register(OutlineField, 'veef-outlinefield', [], {shadow: true});
 
 
 const CasualField = () => {
-	const LB = ["mdc-text-field", "mdc-text-field--filled"];
+	const LB = ["textfield", "textfield--filled"];
 	const [labelCls, setLabel] = useState(LB);
-	const LB_FOC = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
+	const LB_FOC = ["textfield--focused", "textfield--label-floating"];
 
 	const SPN = ["mdc-floating-label"];
 	const [spanCls, setSpan] = useState(SPN);
@@ -76,9 +77,9 @@ const CasualField = () => {
 	const nativeInput = useRef();
 	return html`
 	<label class=${labelCls.join(" ")}>
-      <span class="mdc-text-field__ripple"></span>
+      <span class="textfield__ripple"></span>
       <span id="label" class=${spanCls.join(" ")}>Demo field</span>
-      <input ref=${nativeInput} onBlur=${onBlur} onFocus=${onClick} aria-labelledby="label" class="mdc-text-field__input" type="text" placeholder=""/>
+      <input ref=${nativeInput} onBlur=${onBlur} onFocus=${onClick} aria-labelledby="label" class="textfield__input" type="text" placeholder=""/>
       <span class="mdc-line-ripple" style="transform-origin: 103px center;"></span>
       </label>
 	<style ref=${cssRef(myCss)} />`;

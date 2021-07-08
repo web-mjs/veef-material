@@ -16,6 +16,7 @@
     "node-sass-import": "^1.1.1",
     "node-watch": "^0.6.0",
     "parse5": "^5.1.0",
+    "recast": "^0.20.4",
     "requirejs": "^2.3.6",
     "rimraf": "^3.0.2",
     "rollup": "^2.51.2",

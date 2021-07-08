@@ -8,50 +8,45 @@ import {terser} from 'rollup-plugin-terser';
 import csso from 'csso';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { SourceMapGenerator }  from 'source-map';
-//import walk from 'acorn-walk' 
+import acorn from 'acorn'
+import walk from 'acorn-walk' 
 //import { SourceMapGenerator, SourceNode, SourceMapConsumer } from 'source-map';
 import path from 'path'
 import { spawn } from 'child_process'
+import * as recast from "recast";
 
 function cssLitTransform () {
 	return {
 		name: 'my-plugin',
 		transform (code, file) {
-			if(file.indexOf("css") === -1)
-				return;
+			let isCss = file.indexOf('-css') !== -1;
+			const acornParser = {
+				parse(source) { return acorn.parse(source, {ecmaVersion: 2020, sourceType: 'module', locations: true}); }
+			};
 
 			const optimize = (x) => csso.minify(x).css
 
-			let emitCode = code.replaceAll("\r\n", "\n");
-
-			const oldTokens = [];
-			const newTokens = [];
-			const ast = this.parse(code, {
-				locations: true,
-				onToken: (t) => {
-					if(t.type.label === 'eof') return;
-					oldTokens.push({ pos: t.loc.start, code: null }); 
-					if(t.type.label === 'template') {
-						emitCode = emitCode.replace(t.value, optimize(t.value));
+			const OPT_LIT = true;
+			const SRC_MAP = true;
+			if(isCss || (OPT_LIT && file.indexOf('components.js') !== -1)) {
+				const ast = recast.parse(code, { 
+					parser: acornParser,
+					sourceFileName: file
+				})
+				
+				walk.simple(ast.program, {
+					TemplateElement(node) {
+						if(isCss)
+						node.value.raw = optimize(node.value.raw)
+						else
+						node.value.raw = node.value.raw.replaceAll("\r", "").replaceAll(/^(\s+)/gm, ' ');
 					}
-				}
-			});
-			const astNew = this.parse(emitCode, {
-				locations: true,
-				onToken: (t) => {
-					if(t.type.label === 'eof') return;
-					const snippet = emitCode.substring(t.start, t.end);
-					newTokens.push({pos: t.loc.start, code: snippet}); 
-				}
-			});
-
-			const gen = new SourceMapGenerator({file: file});
-			oldTokens.map((x, i) => {
-				const newTok = newTokens[i];
-				gen.addMapping({original: x.pos, generated: newTok.pos, source: file});
-			});
-			const genObj = (JSON.parse(gen.toString()))
-			return {code: emitCode, map: genObj}
+				});
+				if(!SRC_MAP)
+					return recast.print(ast).code
+				const out = recast.print(ast, { sourceMapName: "source.map" })
+				return { code: out.code, map: out.map };
+			}
 		}
 	};
 }
