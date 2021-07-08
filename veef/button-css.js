@@ -20,7 +20,7 @@ export const buttonStyle = `
     padding-bottom: 0;
     border: 0;
     box-sizing: border-box;
-    font-family: Roboto,sans-serif;
+	font-family: var(--vfont, -apple-system, BlinkMacSystemFont, "Segoe UI", "Liberation Sans", sans-serif);
     border-radius: 4px;
     position: relative;
     display: inline-flex;

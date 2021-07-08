@@ -22,10 +22,10 @@ const cssRef = (code) => {
 const FOCUSED_CLS = ["mdc-text-field--focused", "mdc-text-field--label-floating"];
 const FOCUSED_SPAN = ["mdc-floating-label--float-above"];
 
-import { textFieldStyle as myCss } from './textfield2-css';
+import { textFieldStyle as myCss } from './textfield-css';
 const OutlineField = (props) => {
 	useEffect(() => {
-		outline.current.width = 100;
+		outline.current.width = outline.current.querySelector('#label').getBoundingClientRect().width;
 	});
 	const onClick = () => { 
 		outline.current.open = true;
@@ -87,7 +87,6 @@ webComponents.register(CasualField, 'veef-field', [], {shadow: true});
 
 import { buttonStyle } from './button-css';
 const Button = (props) => {
-	console.log('raised' in props)
 	let cls = 'normal';
 	if('raised' in props) cls = 'raised';
 	useEffect(() => {
@@ -113,9 +112,8 @@ const Button = (props) => {
           <slot name="icon">
           </slot>
         </span>
-        <span class="label">${props.children}</span>
+        <span class="label">${props.domSlot()}</span>
         <span class="slot-container">
-          <slot></slot>
         </span>
         <span class="trailing-icon">
           <slot name="trailingIcon">
@@ -146,7 +144,7 @@ const MyList = (props) => {
 	<style ref=${cssRef(listCss)} />
 	<${ListContext.Provider} value=${{setRipple}} >
 	<ul class="mdc-deprecated-list" ref=${list} tabindex="-1">
-	${props.children}
+	${props.domSlot()}
 	</ul>
 	<//>
 	`;
@@ -190,14 +188,14 @@ const ListItem = (props) => {
 	if(props.twoline == "true" || props.twoline === "") {
 		textSlot = html`<span class="mdc-deprecated-list-item__text">
 <span class="mdc-deprecated-list-item__primary-text"><slot></slot></span>
-<span class="mdc-deprecated-list-item__secondary-text"><slot name="secondary"></slot></span>
+<span class="mdc-deprecated-list-item__secondary-text">${props.domSlot('secondary')}</span>
       </span>
 		`;
 	} 
 	return html`
 	<style ref=${cssRef(listItemCss)} />
 	<mwc-ripple ref=${ripple} />
-	<span class="mdc-deprecated-list-item__graphic material-icons"><slot name="graphic" /></span>
+	<vf-icon><slot name="graphic" /></vf-icon>
 	${textSlot}
 	<span class="mdc-deprecated-list-item__meta material-icons"><slot name="meta" /></span>
 	`;
@@ -293,7 +291,10 @@ webComponents.register(Switch, 'vf-switch', ['checked']);
 import { tabStyle, tabGroupStyle } from './tabgroup-css.js';
 
 const SingleTab = (props) => {
+	console.log(props.context)
+	if(!props.contextReady) return html`nooo`;
 	const tabCtx = useContext(TabContext);
+	console.log(tabCtx)
 	const tabClasses = ['mdc-tab'];
 
 	let thisActive = false;
@@ -302,8 +303,9 @@ const SingleTab = (props) => {
 		tabClasses.push('mdc-tab--active');
 	}
 	const activeIndicator = 'mdc-tab-indicator--active';
+	console.log("rendering tab")
 	useEffect(() => {
-		const hostNode = btn.current.parentNode.host;
+		console.log("after render")
 		if(thisActive && !indicator.current.classList.contains(activeIndicator)){
 			let pos = -2000;
 			if(tabCtx.previousActive.key !== null) {
@@ -342,7 +344,7 @@ const SingleTab = (props) => {
 	<button ref=${btn} role="tab" onMouseDown=${mDown} 
 	onClick=${onClick} onpointerup=${mUp} onpointerout=${mUp} aria-selected="true" tabindex="0" class=${tabClasses.join(" ")}>
         <span class="mdc-tab__content">
-        <span class="mdc-tab__text-label">${props.children}</span>
+        <span class="mdc-tab__text-label">${props.domText}</span>
         </span>
 		<span class="mdc-tab-indicator" ref=${indicator}>
 		<span ref=${indicatorLine} class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"/>
@@ -353,8 +355,8 @@ const SingleTab = (props) => {
 	`;
 };
 
-webComponents.register(SingleTab, 'veef-tab', ['tabKey'],
-	{shadowOpts: {mode: 'open', delegatesFocus: true}, shadow: true, domProps: ['tabKey']});
+webComponents.register(SingleTab, 'veef-tab', ['tabKey', 'active'],
+	{shadowOpts: {mode: 'open', delegatesFocus: true}, shadow: true, domProps: ['tabKey', ]});
 
 const TabContext = createContext();
 const TabGroup = (props) => {
@@ -380,7 +382,7 @@ const TabGroup = (props) => {
 				style="margin-bottom: 0px;">
 					<div ref=${tabs} class="mdc-tab-scroller__scroll-content">
 					<${TabContext.Provider} value=${tabCtx}>
-					${props.children}
+					${props.domSlot()}
 					<//>
 					</div>
 				</div>
@@ -453,7 +455,8 @@ const SVG_DATA={
 	
 	useEffect(() => {
 		let iconData = SVG_DATA['home'];
-		const wantedIcon = props.domElement.innerHTML.trim();
+		const wantedIcon = props.domText.trim(); //props.domElement.innerHTML.trim();
+		console.log(props.domChildren)
 		if(wantedIcon in SVG_DATA) {
 			iconData = SVG_DATA[wantedIcon];
 		}

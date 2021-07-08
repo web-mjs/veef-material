@@ -1,4 +1,4 @@
-import { h, cloneElement, render, hydrate } from '@web-mjs/preact';
+import { h, useEffect, useRef, cloneElement, render, hydrate } from '@web-mjs/preact';
 
 function register(Component, tagName, propNames, options) {
     var opts = {
@@ -17,16 +17,16 @@ function register(Component, tagName, propNames, options) {
 			opts.shadow ? inst.attachShadow( opts.shadowOpts ) : inst;
 		return inst;
 	}
-	PreactElement.prototype = Object.create(HTMLElement.prototype);
-	PreactElement.prototype.constructor = PreactElement;
-	PreactElement.prototype.connectedCallback = connectedCallback;
-	PreactElement.prototype.attributeChangedCallback = attributeChangedCallback;
-	PreactElement.prototype.disconnectedCallback = disconnectedCallback;
+    let pType; 
+	PreactElement.prototype = pType = Object.create(HTMLElement.prototype);
+	pType.constructor = PreactElement;
+	pType.connectedCallback = connectedCallback;
+	pType.attributeChangedCallback = attributeChangedCallback;
+	pType.disconnectedCallback = disconnectedCallback;
+    pType.observer = null;
+    pType.isSlotted = false;
 
-	propNames =
-		propNames ||
-		Component.observedAttributes ||
-		Object.keys(Component.propTypes || {});
+	propNames = propNames || [];
 	PreactElement.observedAttributes = propNames;
 
 	// Keep DOM properties and Preact props in sync
@@ -67,24 +67,54 @@ function ContextProvider(props) {
 }
 
 function connectedCallback() {
-	// Obtain a reference to the previous context by pinging the nearest
-	// higher up node that was rendered with Preact. If one Preact component
-	// higher up receives our ping, it will set the `detail` property of
-	// our custom event. This works because events are dispatched
-	// synchronously.
-	const event = new CustomEvent('_preact', {
-		detail: {},
-		bubbles: true,
-		cancelable: true,
-	});
-	this.dispatchEvent(event);
-	const context = event.detail.context;
+    let domChildren = [];
+    let domText = this.innerHTML;
+    if(this.children && this.children.length !== 0) {
+        domChildren = [...this.children];
+    }
+    const domSlot = (slotName) => {
+        let slotArgs = [];
+        if(typeof slotName !== 'undefined' && slotName) {
+            slotArgs = {name: slotName}
+        }
+        let context = null;
+        slotArgs.ref = (slotElement) => {
+            if(!slotElement) return;
+            [...this.children].map(x => {
+                if(typeof (x._vdom) === 'undefined') return;
+                if(slotName && x.getAttribute('slot') !== slotName) return;
+                //if(!x.assignedSlot || !x.assignedSlot.isSameNode(slotElement)) return;
 
+                let contextReady = !!context;
+                x._vdom = cloneElement(x._vdom, {context, contextReady });
+                render(x._vdom, x._root);
+            });
+        };
+        return h((props, ctx) => {
+            context = ctx;
+            return h('slot', slotArgs)
+        });
+    }
 	this._vdom = h(
 		ContextProvider,
-		{ ...this._props, context },
+		{ ...this._props, domChildren, domSlot, domText, context: null, contextReady: false },
 		toVdom(this, this._vdomComponent)
 	);
+
+    this.observer = new MutationObserver((records, obs) => {
+        console.log("change");
+        /*
+        this._vdom = h(
+            ContextProvider,
+            { ...this._props, context, domElement: this, contextReady },
+            toVdom(this, this._vdomComponent)
+        );
+        render(this._vdom, this._root);
+        */
+        obs.disconnect();
+    });
+
+    this.observer.observe(this, { childList: true });
 	(this.hasAttribute('hydrate') ? hydrate : render)(this._vdom, this._root);
 }
 
@@ -107,43 +137,18 @@ function attributeChangedCallback(name, oldValue, newValue) {
 }
 
 function disconnectedCallback() {
+    if(this.observer != null) {
+        this.observer.disconnect();
+        this.observer = null;
+    }
 	render((this._vdom = null), this._root);
 }
 
-/**
- * Pass an event listener to each `<slot>` that "forwards" the current
- * context value to the rendered child. The child will trigger a custom
- * event, where will add the context value to. Because events work
- * synchronously, the child can immediately pull of the value right
- * after having fired the event.
- */
-function Slot(props, context) {
-	const ref = (r) => {
-		if (!r) {
-			this.ref.removeEventListener('_preact', this._listener);
-		} else {
-			this.ref = r;
-			if (!this._listener) {
-				this._listener = (event) => {
-					event.stopPropagation();
-					event.detail.context = context;
-				};
-				r.addEventListener('_preact', this._listener);
-			}
-		}
-	};
-	return h('slot', { ...props, ref });
-}
-
 function toVdom(element, nodeName) {
-	if (element.nodeType === 3) return element.data;
-	if (element.nodeType !== 1) return null;
-	let children = [],
-		props = {},
+    let	props = {},
 		i = 0,
-		a = element.attributes,
-		cn = element.childNodes;
-    props['domElement'] = element;
+		a = element.attributes;
+
 	for (i = a.length; i--; ) {
 		if (a[i].name !== 'slot') {
 			props[a[i].name] = a[i].value;
@@ -151,18 +156,5 @@ function toVdom(element, nodeName) {
 		}
 	}
 
-	for (i = cn.length; i--; ) {
-		const vnode = toVdom(cn[i], null);
-		// Move slots correctly
-		const name = cn[i].slot;
-		if (name) {
-			props[name] = h(Slot, { name }, vnode);
-		} else {
-			children[i] = vnode;
-		}
-	}
-
-	// Only wrap the topmost node with a slot
-	const wrappedChildren = nodeName ? h(Slot, null, children) : children;
-	return h(nodeName || element.nodeName.toLowerCase(), props, wrappedChildren);
+    return h(nodeName, props);
 }

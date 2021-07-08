@@ -84,7 +84,7 @@ export const tabStyle = `
 }
 .mdc-tab {
     -webkit-font-smoothing: antialiased;
-    font-family: var(--mdc-typography-button-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+    font-family: var(--vfont, -apple-system, BlinkMacSystemFont, "Segoe UI", "Liberation Sans", sans-serif);
     font-size: var(--mdc-typography-button-font-size, 0.875rem);
     line-height: var(--mdc-typography-button-line-height, 2.25rem);
     font-weight: var(--mdc-typography-button-font-weight, 500);

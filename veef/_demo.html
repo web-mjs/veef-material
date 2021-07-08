@@ -1,7 +1,10 @@
-<link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
-<script src="mwc-bundle.js"></script>
-<script src="custom-bundle.js"></script>
+<!DOCTYPE html>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<script src="../mwc-bundle.js"></script>
+<head>
 <style>i[data-spacer]{display:block;height:150px;}</style>
+</head>
+<body>
 
 <vf-icon>
 refresh
@@ -56,8 +59,8 @@ refresh
         dialog will then fire a non-bubbling "closing" event and a non-bubbling
         "closed" event with an event detail of {action: "my-action"}
       </p>
-      <mwc-button slot="primaryAction" dialogAction="customAction">This has action</mwc-button>
-      <mwc-button slot="secondaryAction">this does not</mwc-button>
+      <veef-button slot="primaryAction" dialogAction="customAction">This has action</veef-button>
+      <veef-button slot="secondaryAction">this does not</veef-button>
     </veef-dialog>
     
     <mwc-button onclick="dialog.open = true" raised>Dialog</mwc-button>
@@ -117,3 +120,5 @@ refresh
       </veef-list-item>
     </veef-list> 
 </div>
+<script src="../custom-bundle.js" async></script>
+</html>

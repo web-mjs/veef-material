@@ -7,71 +7,72 @@ import {terser} from 'rollup-plugin-terser';
 //import commonjs from '@rollup/plugin-commonjs';
 import csso from 'csso';
 import { visualizer } from 'rollup-plugin-visualizer';
-import walk from 'acorn-walk' 
-import fs from 'fs'
+import { SourceMapGenerator }  from 'source-map';
+//import walk from 'acorn-walk' 
+//import { SourceMapGenerator, SourceNode, SourceMapConsumer } from 'source-map';
+import path from 'path'
+import { spawn } from 'child_process'
 
-import { SourceMapGenerator, SourceNode, SourceMapConsumer } from 'source-map';
 function cssLitTransform () {
 	return {
 		name: 'my-plugin',
 		transform (code, file) {
 			if(file.indexOf("css") === -1)
 				return;
-			const fname = file.split("\\").pop()
-			// const m = (this.getCombinedSourcemap())
-			//const n = SourceNode.fromStringWithSourceMap(code, new SourceMapConsumer(m))
 
 			const optimize = (x) => csso.minify(x).css
 
 			let emitCode = code.replaceAll("\r\n", "\n");
 
-			const templs = [];
-			const ast = this.parse(code, {locations: true, onToken: (t) => {
-				if(t.type.label === 'eof') return;
-				if(t.type.label === 'template') {
-					emitCode = emitCode.replace(t.value, optimize(t.value));
+			const oldTokens = [];
+			const newTokens = [];
+			const ast = this.parse(code, {
+				locations: true,
+				onToken: (t) => {
+					if(t.type.label === 'eof') return;
+					oldTokens.push({ pos: t.loc.start, code: null }); 
+					if(t.type.label === 'template') {
+						emitCode = emitCode.replace(t.value, optimize(t.value));
+					}
 				}
-			}});
-			const ast2 = this.parse(emitCode, {locations: true});
-			const ast_nodes = [], ast_nodes2 = [];
-			const source_nodes = [];
-			walk.full(ast, node => {
-				if(ast_nodes.length == 0 || ast_nodes[ast_nodes.length - 1].start < node.start)
-				ast_nodes.push(node);
 			});
-			walk.full(ast2, node => {
-				if(ast_nodes2.length == 0 || ast_nodes2[ast_nodes2.length - 1].start < node.start)
-				ast_nodes2.push(node);
+			const astNew = this.parse(emitCode, {
+				locations: true,
+				onToken: (t) => {
+					if(t.type.label === 'eof') return;
+					const snippet = emitCode.substring(t.start, t.end);
+					newTokens.push({pos: t.loc.start, code: snippet}); 
+				}
 			});
-			const srcNodes = ast_nodes.map((node, i) => {
-				const node2 = ast_nodes2[i];
 
-				const nl = node.loc.start;
-				const nl2 = node2.loc.start;
-				return new SourceNode(nl.line, nl.column, file, emitCode.substring(node2.start, node2.end));
+			const gen = new SourceMapGenerator({file: file});
+			oldTokens.map((x, i) => {
+				const newTok = newTokens[i];
+				gen.addMapping({original: x.pos, generated: newTok.pos, source: file});
 			});
-			const fullNode = new SourceNode(1, 0, file, srcNodes)
-			const gen = fullNode.toStringWithSourceMap({ file: file }).map
 			const genObj = (JSON.parse(gen.toString()))
 			return {code: emitCode, map: genObj}
 		}
 	};
 }
 
-export default [
-	{
+export default cmd => {
+	spawn('C:/Users/Filip/AppData/Roaming/Python/Python38/Scripts/sponggy.exe', ['run'], {cwd: __dirname})
+	return {
 		input: './custom-bundle.mjs',
 		output: {
 			file: 'custom-bundle.js',
 			//format: 'es',
 			format: 'iife',
-			sourcemap: true
+			sourcemap: true,
+			sourcemapFile: path.resolve('./custom-bundle.js.map')
 		},
+		watch: true,
 		plugins: [
 			resolve(),
 			cssLitTransform(),
 			terser({ compress: { passes: 10 }, ecma: 2015, format: {ecma: 2015, comments: false, indent_level: 0} }),
-			//visualizer()
+			visualizer({sourcemap: true})
 		]
 	}
-];
+}
