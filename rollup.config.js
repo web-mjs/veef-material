@@ -25,10 +25,15 @@ function cssLitTransform () {
 			};
 
 			const optimize = (x) => csso.minify(x).css
+			const optimizeHTML = (x) => {
+				let c =  x.replaceAll("\r", "").replaceAll(/^(\s+)/gm, ' ')
+				c = c.replaceAll(/<\/[\w-]+>/g, "<//>").replaceAll(/<\/\/>\s+?<\/\/>/gs, "<//><//>").replaceAll(/<\/\/>\s+?<\/\/>/gs, "<//><//>")
+				return c
+			}
 
-			const OPT_LIT = true;
+			const OPTIMIZE_HTML = false;
 			const SRC_MAP = true;
-			if(isCss || (OPT_LIT && file.indexOf('components.js') !== -1)) {
+			if(isCss || (OPTIMIZE_HTML && file.indexOf('components.js') !== -1)) {
 				const ast = recast.parse(code, { 
 					parser: acornParser,
 					sourceFileName: file
@@ -38,8 +43,8 @@ function cssLitTransform () {
 					TemplateElement(node) {
 						if(isCss)
 						node.value.raw = optimize(node.value.raw)
-						else
-						node.value.raw = node.value.raw.replaceAll("\r", "").replaceAll(/^(\s+)/gm, ' ');
+						else 
+						node.value.raw = optimizeHTML(node.value.raw);
 					}
 				});
 				if(!SRC_MAP)

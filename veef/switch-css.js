@@ -101,3 +101,49 @@ export const switchStyle = `
   -webkit-tap-highlight-color: transparent;
 }
 `;
+
+export const checkboxStyle = `
+.mdc-checkbox{
+	width: 40px;
+	height: 40px;
+	position: relative;
+	display: inline-block;
+}
+.mdc-checkbox .native{
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	outline: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+.bg{
+	background: #fff;
+	position: absolute;
+	inset: 10px;
+	border: 2px solid #eee;
+	border-color: var(--unchecked, rgba(0, 0, 0, 0.54));
+	border-radius: 2px;
+	transition:  border-color 90ms ease-in-out 0ms, background-color 90ms ease-in-out 0ms;
+	z-index: -1;
+}
+.native:checked ~ .bg{
+	background: #018786;
+	border-color: #018786;
+}
+.check-svg{
+	color: #fff;
+}
+.check-path{
+    stroke: currentColor;
+    stroke-width: 3.12px;
+	stroke-dashoffset: var(--offset, 29.7833);
+    stroke-dasharray: 29.7833;
+	transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1) 0ms;
+}
+.check-path.no-trans{
+	transition: none;
+}
+`;

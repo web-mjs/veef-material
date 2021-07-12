@@ -1,9 +1,10 @@
-http://localhost:8000 {
+localhost:8000 {
 redir / /veef/
-rewrite /veef/* /veef/_demo.html
+rewrite /veef/ /veef/_demo.html
 file_server browse {
   root . 
 }
+push * /custom-bundle.js
 encode /*.js {
    gzip 9 
 }

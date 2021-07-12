@@ -90,30 +90,32 @@ import { buttonStyle } from './button-css';
 const Button = (props) => {
 	let cls = 'normal';
 	if('raised' in props) cls = 'raised';
+	if('light' in props) cls = 'light';
+	if('borderless' in props) cls += ' borderless';
 	useEffect(() => {
 		rippleRef.current.primary = false;
-		buttonRef.current.addEventListener('mousedown', (e) => {
+		buttonRef.current.addEventListener('pointerdown', (e) => {
+			buttonRef.current.setPointerCapture(e.pointerId)
 			rippleRef.current.startPress(e);
-		});
-		buttonRef.current.addEventListener('mouseup', (e) => {
-			rippleRef.current.endPress();
 		});
 	});
 	const styleRef = useRef();
 	const nativeInput = useRef();
 	const rippleRef = useRef();
 	const buttonRef = useRef();
+	const mUp = () => rippleRef.current.endPress();
 	return html`
 	<button id="button" ref=${buttonRef}
 	onFocus=${() => rippleRef.current.startFocus()}
 	onBlur=${() => rippleRef.current.endFocus()}
+	onpointerup=${mUp} onpointercancel=${mUp}
 	class="btn ${cls}" aria-label="Button">
         <mwc-ripple class="ripple" ref=${rippleRef} ></mwc-ripple>
         <span class="leading-icon">
           <slot name="icon">
           </slot>
         </span>
-        <span class="label">${props.domSlot()}</span>
+        <span class="label">${props.domText}</span>
         <span class="slot-container">
         </span>
         <span class="trailing-icon">
@@ -156,6 +158,7 @@ webComponents.register(MyList, 'veef-list', [], {shadow: true});
 import { listItemCss, listCss } from './list-css.js';
 
 const ListItem = (props) => {
+	if(!props.contextReady) return html`no`
 	const context = useContext(ListContext);
 	useEffect(() => {
 		const outerEl = ripple.current.parentNode.host;
@@ -266,7 +269,7 @@ const Dialog = (props) => {
 };
 webComponents.register(Dialog, 'veef-dialog', ['heading', 'open', 'k'], {shadow: true});
 
-import { switchStyle } from './switch-css.js';
+import { switchStyle, checkboxStyle } from './switch-css.js';
 const Switch = (props) => {
 	const style = useRef();
 	const check = useRef();
@@ -292,10 +295,8 @@ webComponents.register(Switch, 'vf-switch', ['checked']);
 import { tabStyle, tabGroupStyle } from './tabgroup-css.js';
 
 const SingleTab = (props) => {
-	console.log(props.context)
 	if(!props.contextReady) return html`nooo`;
 	const tabCtx = useContext(TabContext);
-	console.log(tabCtx)
 	const tabClasses = ['mdc-tab'];
 
 	let thisActive = false;
@@ -306,6 +307,8 @@ const SingleTab = (props) => {
 	const activeIndicator = 'mdc-tab-indicator--active';
 	console.log("rendering tab")
 	useEffect(() => {
+		if(tabCtx.active.key === null && props.tabKey == 'one')
+			onClick(new PointerEvent('click'))
 		console.log("after render")
 		if(thisActive && !indicator.current.classList.contains(activeIndicator)){
 			let pos = -2000;
@@ -415,7 +418,7 @@ const Checkbox = (props) => {
 		}
 	};
 	const svg = useRef()
-	return html`<style ref=${cssRef(CSTYLE)} />
+	return html`<style ref=${cssRef(checkboxStyle)} />
 	<div class="mdc-checkbox ${cls}">
 		<input type="checkbox" ref=${native} onChange=${onChange} class="native" data-indeterminate="false" value="" />
 		<div class="bg">
@@ -457,7 +460,6 @@ const SVG_DATA={
 	useEffect(() => {
 		let iconData = SVG_DATA['home'];
 		const wantedIcon = props.domText.trim(); //props.domElement.innerHTML.trim();
-		console.log(props.domChildren)
 		if(wantedIcon in SVG_DATA) {
 			iconData = SVG_DATA[wantedIcon];
 		}
@@ -469,51 +471,5 @@ const SVG_DATA={
 	return html`<svg xmlns="http://www.w3.org/2000/svg" width=${w} height=${h} ref=${svg} viewBox="0 0 24 24" fill="#000000"></svg>`;
 };
 webComponents.register(Icon, 'vf-icon');
-
-const CSTYLE = `
-.mdc-checkbox{
-	width: 40px;
-	height: 40px;
-	position: relative;
-	display: inline-block;
-}
-.mdc-checkbox .native{
-	padding: 0;
-	margin: 0;
-	width: 100%;
-	height: 100%;
-	border: 0;
-	outline: 0;
-	opacity: 0;
-	cursor: pointer;
-}
-.bg{
-	background: #fff;
-	position: absolute;
-	inset: 10px;
-	border: 2px solid #eee;
-	border-color: var(--unchecked, rgba(0, 0, 0, 0.54));
-	border-radius: 2px;
-	transition:  border-color 90ms ease-in-out 0ms, background-color 90ms ease-in-out 0ms;
-	z-index: -1;
-}
-.native:checked ~ .bg{
-	background: #018786;
-	border-color: #018786;
-}
-.check-svg{
-	color: #fff;
-}
-.check-path{
-    stroke: currentColor;
-    stroke-width: 3.12px;
-	stroke-dashoffset: var(--offset, 29.7833);
-    stroke-dasharray: 29.7833;
-	transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1) 0ms;
-}
-.check-path.no-trans{
-	transition: none;
-}
-`;
 
 webComponents.register(Checkbox, 'veef-checkbox', ["unbounded"], {domProps: ['unbounded'], shadow: true});

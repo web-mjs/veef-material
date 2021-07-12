@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-<script src="../mwc-bundle.js"></script>
 <head>
 <style>i[data-spacer]{display:block;height:150px;}</style>
 </head>
@@ -10,14 +9,6 @@
 refresh
 </vf-icon>
 <i data-spacer></i>
-
-<mwc-tab-bar>
-  <mwc-tab label="one"></mwc-tab>
-  <mwc-tab label="two"></mwc-tab>
-  <mwc-tab label="three"></mwc-tab>
-</mwc-tab-bar>
-
-<br>
 
 <vf-tabgroup>
   <veef-tab tab-key="one">one</veef-tab>
@@ -31,26 +22,11 @@ refresh
 &nbsp; 
 &nbsp; 
 &nbsp; 
-<mwc-switch checked></mwc-switch>
-&nbsp; 
-&nbsp; 
-&nbsp; 
 <veef-checkbox>
 </veef-checkbox>
 <mwc-checkbox></mwc-checkbox>
 
 <i data-spacer></i>
-
-<mwc-dialog id="dialog" heading="Actions">
-      <p>
-        By setting the dialogAction="my-action" attribute on any element projected into
-        mwc-dialog, you can close the dialog by clicking on that element. The
-        dialog will then fire a non-bubbling "closing" event and a non-bubbling
-        "closed" event with an event detail of {action: "my-action"}
-      </p>
-      <mwc-button slot="primaryAction" dialogAction="customAction">This has action</mwc-button>
-      <mwc-button slot="secondaryAction">this does not</mwc-button>
-    </mwc-dialog>
 
 <veef-dialog id="dialogOwn" heading="Actions">
       <p>
@@ -59,26 +35,15 @@ refresh
         dialog will then fire a non-bubbling "closing" event and a non-bubbling
         "closed" event with an event detail of {action: "my-action"}
       </p>
-      <veef-button slot="primaryAction" dialogAction="customAction">This has action</veef-button>
-      <veef-button slot="secondaryAction">this does not</veef-button>
+      <veef-button slot="primaryAction" dialogAction="customAction" light borderless>This has action</veef-button>
+      <veef-button slot="secondaryAction" light borderless>this does not</veef-button>
     </veef-dialog>
     
-    <mwc-button onclick="dialog.open = true" raised>Dialog</mwc-button>
-    <mwc-button onclick="dialogOwn.open = true" raised>veef dialog</mwc-button>
+<veef-button onclick="dialogOwn.open = true" raised>veef dialog</veef-button>
 
 
 <i data-spacer></i>
 
-
-<mwc-textfield label="Field"></mwc-textfield>
-<mwc-textfield outlined label="Field"></mwc-textfield>
-
-<mwc-button raised label="Button"></mwc-button>
-<mwc-button unelevated label="Button"></mwc-button>
-<mwc-button unelevated icon="code" label="Button" trailingIcon></mwc-button>
-<mwc-button unelevated icon="code" label="Button"></mwc-button>
-
-<br>
 
 <veef-field outlined label="Field"></veef-field>
 <veef-outlinefield outlined label="Field"></veef-outlinefield>
@@ -88,6 +53,7 @@ refresh
     </slot>
 </veef-button>
 <veef-button unelevated>Primer</veef-button>
+<veef-button light>Prosto</veef-button>
 
 <i data-spacer></i>
 
@@ -121,4 +87,5 @@ refresh
     </veef-list> 
 </div>
 <script src="../custom-bundle.js" async></script>
+<script src="../mwc-bundle.js" async></script>
 </html>

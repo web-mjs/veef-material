@@ -68,10 +68,11 @@ function ContextProvider(props) {
 
 function connectedCallback() {
     let domChildren = [];
-    let domText = this.innerHTML;
+    let domText = [...this.childNodes].map(x => x.nodeType == 3 ? x.nodeValue.trim() : '').join('')
     if(this.children && this.children.length !== 0) {
         domChildren = [...this.children];
     }
+
     const domSlot = (slotName) => {
         let slotArgs = [];
         if(typeof slotName !== 'undefined' && slotName) {
@@ -85,7 +86,7 @@ function connectedCallback() {
                 if(slotName && x.getAttribute('slot') !== slotName) return;
                 //if(!x.assignedSlot || !x.assignedSlot.isSameNode(slotElement)) return;
 
-                let contextReady = !!context;
+                let contextReady = typeof context != 'undefined' && context != null;
                 x._vdom = cloneElement(x._vdom, {context, contextReady });
                 render(x._vdom, x._root);
             });
@@ -101,21 +102,16 @@ function connectedCallback() {
 		toVdom(this, this._vdomComponent)
 	);
 
+
     this.observer = new MutationObserver((records, obs) => {
-        console.log("change");
-        /*
-        this._vdom = h(
-            ContextProvider,
-            { ...this._props, context, domElement: this, contextReady },
-            toVdom(this, this._vdomComponent)
-        );
+        this._vdom = cloneElement(this._vdom);
         render(this._vdom, this._root);
-        */
-        obs.disconnect();
     });
 
-    this.observer.observe(this, { childList: true });
+    this.observer.observe(this, { childList: true, attributeFilter: ['vf-rendered'], characterData: true });
 	(this.hasAttribute('hydrate') ? hydrate : render)(this._vdom, this._root);
+    this.setAttribute('vf-rendered', 'true')
+    requestAnimationFrame(() => this.removeAttribute('vf-rendered'))
 }
 
 function toCamelCase(str) {

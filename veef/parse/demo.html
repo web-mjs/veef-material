@@ -1,0 +1,19 @@
+<div id="box"></div>
+<script type="module">
+	import { parse, render, diff } from './example-bundle.js';
+	const demo = parse`<div>
+	<br />
+	<div /><i><div/></i><div />
+	<b>asdf<input /></b>
+	</div>`
+	console.log(demo)
+
+	const dom = parse`yooo<b>how are you</b> <a href=${'g'}>oo</a> ${'text'} <input>`
+	box.append(render(dom))
+	const dom2 = parse`yooo<i>how are yo2u</i> <a href=${'g'}>oo</a> ${'text'}<br> <input>`
+	console.log(dom2)
+	setTimeout(() => {
+	diff(dom, dom2, box.childNodes[0])
+	}, 3500)
+</script>
+
