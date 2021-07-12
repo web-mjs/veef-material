@@ -17,6 +17,7 @@ const newElement = (name, component) => {
             let state = {
                 hookCounter: 0,
                 renderFns: [],
+                ref: (name) => refCache[name],
                 reset: () => {
                     state.hookCounter = 0
                     state.renderFns = []
@@ -76,13 +77,13 @@ const _diff = (vdom1, vdom2, domNode, parentNode) => {
         domNode.replaceWith(render(vdom2))
         return
     }
-    vdom2.props.filter(x => !isEvent(x) && x.value != vdom2.props[x.key]).map(x => domNode[x.key] = x.value)
+    vdom2.props.filter(x => !isEvent(x) && x.name != 'ref' && x.value != vdom2.props[x.key]).map(x => domNode[x.key] = x.value)
     vdom2.props.map(x => setEvent(x, domNode))
-    const recursiveDiff = (dom1, dom2) => {
-        dom1.children.map((x, i) => _diff(dom1.children[i], dom2.children[i], domNode.childNodes[i], domNode))
+    const recursiveDiff = (dom) => {
+        dom.children.map((x, i) => _diff(vdom1.children[i], vdom2.children[i], domNode.childNodes[i], domNode))
     }
-    recursiveDiff(vdom2, vdom1)
-    recursiveDiff(vdom1, vdom2)
+    recursiveDiff(vdom2)
+    recursiveDiff(vdom1)
 }
 const diff = (vdom1, vdom2, w) => _diff(vdom1, vdom2, w.children[0])
 
@@ -176,7 +177,12 @@ export { h, newElement }
 const isUndef = (x) => typeof x === 'undefined'
 
 let eventHandlerCache = []
+let refCache = {}
 const setEvent = (x, element) => {
+    if(x.name === 'ref') {
+        refCache[x.value] = element
+        return true
+    }
     if(typeof x.value == 'function' && isEvent(x)) {
         let evName = x.name.toLowerCase().substr(2)
         eventHandlerCache.filter(h => h.name == evName && h.el == element).map(x => 

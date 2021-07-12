@@ -6,10 +6,11 @@
 		let cnt = state.add(0)
 		state.onRender((root) => {
 			console.log("rendered", root)
+			console.log(state.ref('btn'))
 		})
 		const click = () => {cnt.set(cnt.value + 1)}
 		return h`<h1>${cnt.value}</h1>
-		<button onClick=${click}>adf</button>`;
+		<button ref='btn' onClick=${click}>adf</button>`;
 	}
 	newElement('my-el', MyEl)
 </script>
