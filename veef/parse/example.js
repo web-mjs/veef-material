@@ -3,47 +3,45 @@ const newElement = (name, component) => {
     customElements.define(name, class extends HTMLElement {
         constructor() {
             super()
-            this._root = this.attachShadow(opts || {mode: 'open', delegatesFocus: true})
+            this._root = this.attachShadow(opts || {mode: 'open'})
         }
         connectedCallback() {
             let rerender = () => {
-                state._i = 0;
+                let renderFns = state.renderFns
+                state.reset()
                 let newVdom = component(state)
                 diff(lastVdom, newVdom, this._root)
                 lastVdom = newVdom;
+                renderFns.map(x => x(this._root))
             }
             let state = {
-                _i: 0,
+                hookCounter: 0,
+                renderFns: [],
+                reset: () => {
+                    state.hookCounter = 0
+                    state.renderFns = []
+                },
                 _data: {},
-                useState: (defaultVal) => {
-                    let key = ++state._i
+                add: (defaultVal) => {
+                    let key = ++state.hookCounter
                     const set = (x) => { state._data[key] = x; rerender() }
-                    if(key in state._data) return [state._data[key], set]
+                    if(key in state._data) return {value: state._data[key], set}
                     state._data[key] = defaultVal
-                    return [defaultVal, set]
-                }
+                    return {value: defaultVal, set}
+                },
+                onRender: (cb) => {
+                    state.renderFns.push(cb)
+                },
             }
             let lastVdom = component(state)
             this._root.append(render(lastVdom))
+            state.renderFns.map(x => x(this._root))
         }
-        disconnectedCallback() {
-        }
+        /*disconnectedCallback() {
+        }*/
         attributeChangedCallback(name, from, to) {
         }
     })
-}
-let eventHandlers = []
-const setEvent = (x, element) => {
-    if(typeof x.value == 'function' && isEvent(x)) {
-        let evName = x.name.toLowerCase().substr(2)
-        eventHandlers.filter(h => h.name == evName && h.el == element).map(x => 
-            element.removeEventListener(evName, x.fn)
-        );
-        eventHandlers.push({name: evName, el: element, fn: x.value})
-        element.addEventListener(evName, x.value)
-        return true
-    }
-    return false
 }
 const render = (vdom) => {
     if(vdom.charAt) return document.createTextNode(vdom);
@@ -80,8 +78,11 @@ const _diff = (vdom1, vdom2, domNode, parentNode) => {
     }
     vdom2.props.filter(x => !isEvent(x) && x.value != vdom2.props[x.key]).map(x => domNode[x.key] = x.value)
     vdom2.props.map(x => setEvent(x, domNode))
-    vdom2.children.map((x, i) => _diff(vdom1.children[i], x, domNode.childNodes[i], domNode))
-    vdom1.children.map((x, i) => _diff(x, vdom2.children[i], domNode.childNodes[i], domNode))
+    const recursiveDiff = (dom1, dom2) => {
+        dom1.children.map((x, i) => _diff(dom1.children[i], dom2.children[i], domNode.childNodes[i], domNode))
+    }
+    recursiveDiff(vdom2, vdom1)
+    recursiveDiff(vdom1, vdom2)
 }
 const diff = (vdom1, vdom2, w) => _diff(vdom1, vdom2, w.children[0])
 
@@ -158,7 +159,7 @@ const h = (strings, ...argums) => {
 				put(arg.toString())
 			}
 			i = 0; c++;
-            if(c >= strings.length) break;
+            if(isUndef(strings[c][0])) break;
 		}
 		chr  = strings[c][i];
 		let T = transitions[stage]
@@ -170,6 +171,20 @@ const h = (strings, ...argums) => {
 }
 h.ref = (x) => x;
 
-export { newElement, h, render, diff }
+export { h, newElement }
 
 const isUndef = (x) => typeof x === 'undefined'
+
+let eventHandlerCache = []
+const setEvent = (x, element) => {
+    if(typeof x.value == 'function' && isEvent(x)) {
+        let evName = x.name.toLowerCase().substr(2)
+        eventHandlerCache.filter(h => h.name == evName && h.el == element).map(x => 
+            element.removeEventListener(evName, x.fn)
+        );
+        eventHandlerCache.push({name: evName, el: element, fn: x.value})
+        element.addEventListener(evName, x.value)
+        return true
+    }
+    return false
+}

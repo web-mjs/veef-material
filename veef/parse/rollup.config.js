@@ -9,7 +9,7 @@ export default [
     output: {
 		file: 'example-bundle.js',
 		format: 'es',
-		sourcemap: true,
+		sourcemap: false,
 		sourcemapFile: path.resolve('./example-bundle.js.map')	
       //format: 'iife',
     },
