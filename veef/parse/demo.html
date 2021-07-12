@@ -1,19 +1,27 @@
 <div id="box"></div>
 <script type="module">
-	import { parse, render, diff } from './example-bundle.js';
-	const demo = parse`<div>
-	<br />
-	<div /><i><div/></i><div />
-	<b>asdf<input /></b>
-	</div>`
-	console.log(demo)
+	import { h, render, diff, newElement } from './example-bundle.js';
 
-	const dom = parse`yooo<b>how are you</b> <a href=${'g'}>oo</a> ${'text'} <input>`
+	let TEXT = "some embedded text. Escaped str: <b>not html</b>";
+	const dom = h`
+	<h1>Demo app</h1>
+	How are <b>you</b>? <br/>
+	<a href=${'g'}>Click on this link</a> ${TEXT}`
 	box.append(render(dom))
-	const dom2 = parse`yooo<i>how are yo2u</i> <a href=${'g'}>oo</a> ${'text'}<br> <input>`
+	const dom2 = h`yooo<i>how are yo2u</i> <a href=${'g'}>oo</a> ${h.ref('text')}<br/> <input/>`
+	console.log(dom)
 	console.log(dom2)
 	setTimeout(() => {
-	diff(dom, dom2, box.childNodes[0])
+	diff(dom, dom2, box)
 	}, 3500)
+
+	const MyEl = (state) => {
+		let [cnt, setCnt] = state.useState(0)
+		const click = () => { console.log("A"); setCnt(cnt + 1)}
+		return h`<h1>${cnt}</h1>
+		<button onClick=${click}>adf</button>`;
+	}
+	newElement('my-el', MyEl)
 </script>
 
+<my-el></my-el>
