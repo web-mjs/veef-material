@@ -6,38 +6,48 @@ const createElement = (name, component) => {
             this._r = this.attachShadow(opts || {mode: 'open'})
         }
         connectedCallback() {
-            const hookCounter = 'h', renderFns = 'f', reset = 'r', data = 'd';
+            const hookCounter = 'h', renderFns = 'f', reset = 'r', data = 'd', css='c';
             const root = this._r
             let rerender = () => {
                 let prevFns = state[renderFns]
                 state[reset]()
-                let newVdom = component(state)
+                let newVdom = wrapStyle(component(state))
                 diff(lastVdom, newVdom, root)
                 lastVdom = newVdom;
                 prevFns.map(x => x(root))
             }
             let state = {
+                [css]: '',
                 [hookCounter]: 0,
                 [renderFns]: [],
                 [reset]: () => {
+                    state[css] = ''
                     state[hookCounter] = 0
                     state[renderFns] = []
                 },
                 [data]: {},
+                addStyle: (x) => state[css] += x,
                 slot: (name, data) => { DOM_SLOT.n = name; return DOM_SLOT }, 
                 ref: (name) => refCache[name],
-                track: (defaultVal) => {
+                add: (defaultVal) => {
                     let key = ++state[hookCounter]
                     const set = (x) => { state[data][key] = x; rerender() }
-                    if(key in state[data]) return {value: state[data][key], set}
+                    if(key in state[data]) return {val: state[data][key], set}
                     state[data][key] = defaultVal
-                    return {value: defaultVal, set}
+                    return {val: defaultVal, set}
                 },
                 onRender: (cb) => {
                     state[renderFns].push(cb)
                 },
             }
-            let lastVdom = component(state)
+            const wrapStyle = (vdom) => {
+                console.log(state[css])
+                const styleTag = newTag('style')
+                styleTag.children[0] = state[css];
+                vdom.children.unshift(styleTag)
+                return vdom
+            }
+            let lastVdom = wrapStyle(component(state))
             root.append(render(lastVdom))
             state[renderFns].map(x => x(root))
         }
@@ -53,10 +63,7 @@ const render = (vdom) => {
     if(name == 'root') name = 'div'
     let newEl = document.createElement(name);
     if(name == 'slot') newEl.name = vdom.n;
-    vdom.props.map(x => { 
-        if(!setEvent(x, newEl))
-        newEl[x.name] = x.value
-    })
+    setElementProps(vdom.props, newEl)
     newEl.append(...vdom.children.map(x => render(x)));
     return newEl
 };
@@ -81,13 +88,13 @@ const _diff = (vdom1, vdom2, domNode, parentNode) => {
         domNode.replaceWith(render(vdom2))
         return
     }
-    vdom2.props.filter(x => !isEvent(x) && x.name != 'ref' && x.value != vdom2.props[x.key]).map(x => domNode[x.key] = x.value)
-    vdom2.props.map(x => setEvent(x, domNode))
+    const vdom1Get = (name) => vdom1.props.find(x=>x.name==name).value;
+    setElementProps(vdom2.props.filter(x => x.value != vdom1Get(x.name).value), domNode)
     const recursiveDiff = (dom) => {
         dom.children.map((x, i) => _diff(vdom1.children[i], vdom2.children[i], domNode.childNodes[i], domNode))
     }
     recursiveDiff(vdom2)
-    recursiveDiff(vdom1)
+    //recursiveDiff(vdom1)
 }
 const diff = (vdom1, vdom2, w) => _diff(vdom1, vdom2, w.children[0])
 
@@ -96,7 +103,7 @@ const newTag = (ch) => ( {name: ch, props: [], children: [''], x:0, el:1 });
 const DOM_SLOT = {};
 
 const h = (strings, ...argums) => {
-    const TAG_NAME = 0, PROPS_START = 1, TAG_TEXT = 2;
+    const TAG_NAME = 0, PROPS_START = 1, INNER_TEXT = 2;
     const PROP_NAME=6, PROP_EQUALS=7, PROP_Q1=8, PROP_Q2=9, EARLY=10;
     const FUNC = 99;
 
@@ -124,15 +131,15 @@ const h = (strings, ...argums) => {
     const trimChildren = (node) => node.map(x => x.el ? x : smartTrim(x)).filter(x => x!=='');
 
 	let transitions = {
-        [TAG_NAME]: {'>': TAG_TEXT, ' ': PROPS_START, '/':4, [FUNC]: () => {tag.name += chr} },
-		[PROPS_START]: {'>': TAG_TEXT, ' ': PROPS_START, '/': 4, [FUNC]: () => {
+        [TAG_NAME]: {'>': INNER_TEXT, ' ': PROPS_START, '/':4, [FUNC]: () => {tag.name += chr} },
+		[PROPS_START]: {'>': INNER_TEXT, ' ': PROPS_START, '/': 4, [FUNC]: () => {
             tag.props.unshift({name: chr, value: ''});
             stage = PROP_NAME}},
 		[PROP_NAME]: {'=': PROP_EQUALS, [FUNC]: () => {tag.props[0].name+= chr}},
 		[PROP_EQUALS]: {'"': PROP_Q1, "'": PROP_Q2, [FUNC]: propPut},
 		[PROP_Q1]: {'"': PROPS_START, [FUNC]: propPut},
 		[PROP_Q2]: {"'": PROPS_START, [FUNC]: propPut},
-		[TAG_TEXT]: {[FUNC]: () => {
+		[INNER_TEXT]: {[FUNC]: () => {
             if(chr == '<') {
                 tag[children] = trimChildren(tag[children])
                 stage = 3;
@@ -150,7 +157,7 @@ const h = (strings, ...argums) => {
 		4: {[FUNC]: () => {
 			if(chr != '>')  return; 
 			tag = tagStack.pop()
-			stage = TAG_TEXT;
+			stage = INNER_TEXT;
 			}}
 	};
 	let c = 0;
@@ -170,7 +177,8 @@ const h = (strings, ...argums) => {
 			i = 0; c++;
             if(isUndef(strings[c][0])) break;
 		}
-		chr  = strings[c][i];
+		chr  = strings[c][i]
+        if(stage != INNER_TEXT && stage != PROP_Q1 && stage != PROP_Q2) chr = chr.replace(/\s/,' ')
 		let T = transitions[stage]
 		if(chr in T) stage = T[chr]
 		else T[FUNC]()
@@ -185,21 +193,32 @@ const isUndef = (x) => typeof x === 'undefined'
 
 let eventHandlerCache = []
 let refCache = {}
-const setEvent = (x, element) => {
-    if(x.name == 'ref') {
-        refCache[x.value] = element
-        return true
-    }
-    if(typeof x.value == 'function' && isEvent(x)) {
-        let evName = x.name.toLowerCase().substr(2)
-        eventHandlerCache.filter(h => h.name == evName && h.el == element).map(x => 
-            element.removeEventListener(evName, x.fn)
-        );
-        eventHandlerCache.push({name: evName, el: element, fn: x.value})
-        element.addEventListener(evName, x.value)
-        return true
-    }
-    return false
+const setElementProps = (props, element) => {
+    const EV_NAME = 0;
+    const EL = 1;
+    const FN = 2;
+    props.map(x => {
+        if(x.name == 'class' && !x.value.trim) {
+            const cl = element.classList;
+            cl.forEach((v) => v in x.value ? null : x.value[v] = false)
+            Object.entries(x.value).map(x => !x[1] ? cl.remove(x[0]) : cl.add(x[0]))
+            return
+        }
+        if(x.name == 'ref') {
+            refCache[x.value] = element
+            return
+        }
+        if(isEvent(x) && !x.value.trim) {
+            let evName = x.name.toLowerCase().substr(2)
+            eventHandlerCache.filter(h => h[EV_NAME] == evName && h[EL] == element).map(x => 
+                element.removeEventListener(evName, x[FN])
+            );
+            eventHandlerCache.push({[EV_NAME]: evName, [EL]: element, [FN]: x.value})
+            element.addEventListener(evName, x.value)
+            return
+        }
+        element.setAttribute(x.name, x.value)
+    })
 }
 
 const smartTrim = (x) => {

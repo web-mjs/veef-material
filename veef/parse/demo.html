@@ -1,21 +1,42 @@
-<div id="box"></div>
 <script type="module">
-	import {h, createElement} from './example-bundle.js';
+import { h, createElement } from './example-bundle.js';
 
-	const MyEl = (state) => {
-		let cnt = state.track(0)
-		state.onRender((root) => {
-			console.log("rendered", root)
-		})
-		const click = () => {cnt.set(cnt.value + 1)}
-		return h`<h1>${cnt.value}</h1>
-		<button ref='btn' onClick=${click}>adf</button>
-		${state.slot('')}
-		`;
-	}
-	createElement('my-el', MyEl)
+const MyCounter = (state) => {
+	const counter = state.add(0)
+
+	state.addStyle(`
+	p {
+	  box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+	  padding: 10px;
+	  margin: 20px;
+	  font-family: sans-serif;
+	  border-radius: 5px;
+	  transition: all 0.5s ease;
+	  text-align: center; width: 300px; font-size: 2em; }
+	p.odd {background: #444; color: #fff; }
+	button { transform: scale(1.25) translateY(-15%); }
+	span { padding: 0 10px; }
+	`)
+
+	const dec = (ev) => {counter.set(counter.val - 1);}
+	const incr = (ev) => {counter.set(counter.val + 1);}
+
+	let classList = {odd: counter.val % 2};
+
+	return h`
+	<p class=${classList}>
+
+		<button onClick=${dec}> - </button>
+		<span>${counter.val}</span>
+		<button onClick=${incr}> + </button>
+
+	</p>
+	`;
+}
+
+createElement('my-counter', MyCounter)
 </script>
 
 <my-el>
-issa slot?
+	Example app
 </my-el>
