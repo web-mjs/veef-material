@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>veef WebModule</title>
+<body>
+
+<!-- veef.mjs: authored by Filip Dimitrovski, 2021, All rights reserved -->
+
+<script type="module">
+import { h, createElement } from './veef.mjs';
+
+const MyCounter = (state) => {
+	const counter = state.add(0)
+
+	// shadow dom style
+	state.addStyle(`
+	p {
+	  box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+	  transition: all 0.5s ease;
+	  padding: 10px; margin: 20px;
+	  font-family: sans-serif; border-radius: 5px;
+	  text-align: center; width: calc(100%-60px); max-width: 400px; font-size: 2em; }
+	p.odd   {  background: #444; color: #fff; }
+	button  {  transform: scale(1.25) translateY(-15%); }
+	.number {  padding: 0 10px; }
+	.slot   {  font-size: 0.45em; }
+	`)
+
+	const dec = (ev) => {counter.set(counter.val - 1);}
+	const incr = (ev) => {counter.set(counter.val + 1);}
+
+	let classList = {odd: counter.val % 2};
+
+	return h`
+	<p class=${classList}>
+		<button onClick=${dec}> - </button>
+		<span class="number">${counter.val}</span>
+		<button onClick=${incr}> + </button>
+		
+		<div class="slot">${state.slot('')}</div>
+	</p>
+	`;
+}
+
+createElement('my-counter', MyCounter)
+</script>
+
+<my-counter>blah first</my-counter>
+<my-counter>blah second</my-counter>
+
+</body>

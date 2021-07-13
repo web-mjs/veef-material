@@ -5,9 +5,9 @@ import path from 'path'
 export default [
   {
     // index es6
-    input: './example.js',
+    input: './veef.js',
     output: {
-		file: 'example-bundle.js',
+		file: 'veef.mjs',
 		format: 'es',
 		sourcemap: false,
 		sourcemapFile: path.resolve('./example-bundle.js.map')	

@@ -41,7 +41,6 @@ const createElement = (name, component) => {
                 },
             }
             const wrapStyle = (vdom) => {
-                console.log(state[css])
                 const styleTag = newTag('style')
                 styleTag.children[0] = state[css];
                 vdom.children.unshift(styleTag)
@@ -111,7 +110,7 @@ const h = (strings, ...argums) => {
 
     const addDomSlot = (name) => {
         const slotTag = newTag('slot')
-        slotTag.n = name;
+        slotTag.n = name || '';
         tag[children].push(slotTag)
     }
 

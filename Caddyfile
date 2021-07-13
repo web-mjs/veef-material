@@ -2,7 +2,7 @@ localhost:8000 {
 redir / /veef/
 rewrite /veef/ /veef/_demo.html
 file_server browse {
-  root . 
+  root C:\Users\Filip\veef-material
 }
 push * /custom-bundle.js
 encode /*.js {

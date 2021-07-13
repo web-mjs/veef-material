@@ -57,7 +57,6 @@ function cssLitTransform () {
 }
 
 export default cmd => {
-	spawn('C:/Users/Filip/AppData/Roaming/Python/Python38/Scripts/sponggy.exe', ['run'], {cwd: __dirname})
 	return {
 		input: './custom-bundle.mjs',
 		output: {
