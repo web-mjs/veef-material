@@ -26,7 +26,7 @@ const MyCounter = (state) => {
 	.slot   {  font-size: 0.45em; }
 	`)
 
-	const dec = (ev) => {counter.set(counter.val - 1);}
+	const dec = (ev) => {console.log(ev);counter.set(counter.val - 1);}
 	const incr = (ev) => {counter.set(counter.val + 1);}
 
 	let classList = {odd: counter.val % 2};
