@@ -1,10 +1,11 @@
 localhost:8000 {
-redir / /veef/
-rewrite /veef/ /veef/_demo.html
 file_server browse {
   root C:\Users\Filip\veef-material
 }
-push * /custom-bundle.js
+respond / 200 {
+  body "<h1><a href=/veef>Veef</a><br><a href=/lib>Veef library</a></h1>"
+}
+rewrite /veef/ /veef/_demo.html
 encode /*.js {
    gzip 9 
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>veef WebModule</title>
+<title>veef WebModule lib</title>
 <body>
 
 <!-- veef.mjs: authored by Filip Dimitrovski, 2021, All rights reserved -->
@@ -37,7 +37,7 @@ const MyCounter = (state) => {
 		<span class="number">${counter.val}</span>
 		<button onClick=${incr}> + </button>
 		
-		<div class="slot">${state.slot('')}</div>
+		<div class="slot">${state.slot()}</div>
 	</p>
 	`;
 }
