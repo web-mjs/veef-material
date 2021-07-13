@@ -1,7 +1,7 @@
 import { render, html, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import webComponents from './webc.js'; 
 
-// Show HN: Complex web apps in 30KB using Web Modules without transpiling JS
+// Show HN: A 30KB UI component library with progressive Web Modules
 // shite that needs to be handled
 // aria-*, focus/active, keyboard select, multiple pointers/mobile, passive events 
 // use <label>

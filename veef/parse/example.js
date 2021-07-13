@@ -1,42 +1,45 @@
-const newElement = (name, component) => {
+const createElement = (name, component) => {
     let opts = null;
     customElements.define(name, class extends HTMLElement {
         constructor() {
             super()
-            this._root = this.attachShadow(opts || {mode: 'open'})
+            this._r = this.attachShadow(opts || {mode: 'open'})
         }
         connectedCallback() {
+            const hookCounter = 'h', renderFns = 'f', reset = 'r', data = 'd';
+            const root = this._r
             let rerender = () => {
-                let renderFns = state.renderFns
-                state.reset()
+                let prevFns = state[renderFns]
+                state[reset]()
                 let newVdom = component(state)
-                diff(lastVdom, newVdom, this._root)
+                diff(lastVdom, newVdom, root)
                 lastVdom = newVdom;
-                renderFns.map(x => x(this._root))
+                prevFns.map(x => x(root))
             }
             let state = {
-                hookCounter: 0,
-                renderFns: [],
-                ref: (name) => refCache[name],
-                reset: () => {
-                    state.hookCounter = 0
-                    state.renderFns = []
+                [hookCounter]: 0,
+                [renderFns]: [],
+                [reset]: () => {
+                    state[hookCounter] = 0
+                    state[renderFns] = []
                 },
-                _data: {},
-                add: (defaultVal) => {
-                    let key = ++state.hookCounter
-                    const set = (x) => { state._data[key] = x; rerender() }
-                    if(key in state._data) return {value: state._data[key], set}
-                    state._data[key] = defaultVal
+                [data]: {},
+                slot: (name, data) => { DOM_SLOT.n = name; return DOM_SLOT }, 
+                ref: (name) => refCache[name],
+                track: (defaultVal) => {
+                    let key = ++state[hookCounter]
+                    const set = (x) => { state[data][key] = x; rerender() }
+                    if(key in state[data]) return {value: state[data][key], set}
+                    state[data][key] = defaultVal
                     return {value: defaultVal, set}
                 },
                 onRender: (cb) => {
-                    state.renderFns.push(cb)
+                    state[renderFns].push(cb)
                 },
             }
             let lastVdom = component(state)
-            this._root.append(render(lastVdom))
-            state.renderFns.map(x => x(this._root))
+            root.append(render(lastVdom))
+            state[renderFns].map(x => x(root))
         }
         /*disconnectedCallback() {
         }*/
@@ -49,6 +52,7 @@ const render = (vdom) => {
     let name = vdom.name
     if(name == 'root') name = 'div'
     let newEl = document.createElement(name);
+    if(name == 'slot') newEl.name = vdom.n;
     vdom.props.map(x => { 
         if(!setEvent(x, newEl))
         newEl[x.name] = x.value
@@ -87,36 +91,38 @@ const _diff = (vdom1, vdom2, domNode, parentNode) => {
 }
 const diff = (vdom1, vdom2, w) => _diff(vdom1, vdom2, w.children[0])
 
-const el = (ch) => ( {name: ch, props: [], children: [''], x:0, el:1 });
+const newTag = (ch) => ( {name: ch, props: [], children: [''], x:0, el:1 });
+
+const DOM_SLOT = {};
 
 const h = (strings, ...argums) => {
     const TAG_NAME = 0, PROPS_START = 1, TAG_TEXT = 2;
     const PROP_NAME=6, PROP_EQUALS=7, PROP_Q1=8, PROP_Q2=9, EARLY=10;
     const FUNC = 99;
 
-    const NOTAGS = ['br', 'hr', 'img', 'input'];
-	const strs = [...strings];
-	let tag = el('root');
+    const AUTOCLOSE = ['br', 'hr', 'img', 'input'];
+
+    const addDomSlot = (name) => {
+        const slotTag = newTag('slot')
+        slotTag.n = name;
+        tag[children].push(slotTag)
+    }
+
+	let tag = newTag('root');
 	let root = tag;
-	let tagStack = [tag];
 	let chr = null;
+	let stage = 2;
+
+	const tagStack = [tag];
 
     const children = 'children'
-	let stage = 2;
-	let _put = (x) => tag[children].push(x)
-	let put = (x) => { tag.x=_put(x); _put('') }
-	let propPut = (x) => tag.props[0].value += chr;
-    let smartTrim = (x) => {
-        if(x === '') return ''
-        let ll = x.trim()
-        let l = '', r = '';
-        if(x[0] !== ll[0]) l = ' ';
-        if(x.substr(-1) !== ll.substr(-1)) r = ' ';
-        if(ll == '' && l==r) return l
-        return l + ll + r;
-    };
+	const _put = (x) => tag[children].push(x)
+	const put = (x) => { tag.x=_put(x); _put('') }
+	const propPut = (x) => tag.props[0].value += chr;
+
 
     const trimChildren = (node) => node.map(x => x.el ? x : smartTrim(x)).filter(x => x!=='');
+
 	let transitions = {
         [TAG_NAME]: {'>': TAG_TEXT, ' ': PROPS_START, '/':4, [FUNC]: () => {tag.name += chr} },
 		[PROPS_START]: {'>': TAG_TEXT, ' ': PROPS_START, '/': 4, [FUNC]: () => {
@@ -135,7 +141,7 @@ const h = (strings, ...argums) => {
 			tag[children][tag.x] += chr
 			}},
 		3: {'/': 4, [FUNC]: () => {
-			const newEl = el(chr)
+			const newEl = newTag(chr)
 			tagStack.push(tag)
 			put(newEl)
 			tag = newEl
@@ -157,6 +163,8 @@ const h = (strings, ...argums) => {
 				stage = PROPS_START;
 			}
 			if(stage == 2) {
+                if(arg === DOM_SLOT) addDomSlot(DOM_SLOT.n)
+                else
 				put(arg.toString())
 			}
 			i = 0; c++;
@@ -170,16 +178,15 @@ const h = (strings, ...argums) => {
     root[children] = trimChildren(root[children])
 	return root;
 }
-h.ref = (x) => x;
 
-export { h, newElement }
+export { h, createElement }
 
 const isUndef = (x) => typeof x === 'undefined'
 
 let eventHandlerCache = []
 let refCache = {}
 const setEvent = (x, element) => {
-    if(x.name === 'ref') {
+    if(x.name == 'ref') {
         refCache[x.value] = element
         return true
     }
@@ -194,3 +201,13 @@ const setEvent = (x, element) => {
     }
     return false
 }
+
+const smartTrim = (x) => {
+    if(x === '') return ''
+    let fullTrim = x.trim()
+    let l = '', r = '';
+    if(x[0] !== fullTrim[0]) l = ' ';
+    if(x.substr(-1) !== fullTrim.substr(-1)) r = ' ';
+    if(fullTrim == '' && l==r) return l
+    return l + fullTrim + r;
+};

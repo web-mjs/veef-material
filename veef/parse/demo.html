@@ -1,18 +1,21 @@
 <div id="box"></div>
 <script type="module">
-	import {h, newElement} from './example-bundle.js';
+	import {h, createElement} from './example-bundle.js';
 
 	const MyEl = (state) => {
-		let cnt = state.add(0)
+		let cnt = state.track(0)
 		state.onRender((root) => {
 			console.log("rendered", root)
-			console.log(state.ref('btn'))
 		})
 		const click = () => {cnt.set(cnt.value + 1)}
 		return h`<h1>${cnt.value}</h1>
-		<button ref='btn' onClick=${click}>adf</button>`;
+		<button ref='btn' onClick=${click}>adf</button>
+		${state.slot('')}
+		`;
 	}
-	newElement('my-el', MyEl)
+	createElement('my-el', MyEl)
 </script>
 
-<my-el></my-el>
+<my-el>
+issa slot?
+</my-el>
