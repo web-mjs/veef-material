@@ -9,4 +9,7 @@ rewrite /veef/ /veef/_demo.html
 encode /*.js {
    gzip 9 
 }
+encode /*.mjs {
+   gzip 9 
+}
 }

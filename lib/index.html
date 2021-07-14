@@ -12,6 +12,9 @@ import { h, createElement } from './veef.mjs';
 const MyCounter = (state) => {
 	const counter = state.add(0)
 
+    state.onRender(() => {
+        console.log('render')
+    })
 	// shadow dom style
 	state.addStyle(`
 	p {
@@ -32,7 +35,8 @@ const MyCounter = (state) => {
 	let classList = {odd: counter.val % 2};
 
 	return h`
-	<p class=${classList}>
+	<p
+	class=${classList}>
 		<button onClick=${dec}> - </button>
 		<span class="number">${counter.val}</span>
 		<button onClick=${incr}> + </button>
