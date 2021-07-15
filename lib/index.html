@@ -4,41 +4,47 @@
 <title>veef WebModule lib</title>
 <body>
 
-<!-- veef.mjs: authored by Filip Dimitrovski, 2021, All rights reserved -->
+<!--
+    veef.mjs: authored by Filip Dimitrovski
+    2021, All rights reserved -->
 
 <script type="module">
 import { h, createElement } from './veef.mjs';
 
 const MyCounter = (state) => {
-	const counter = state.add(0)
-
-    state.onRender(() => {
-        console.log('render')
+    const vars = state.init({
+        counter: 0
     })
-	// shadow dom style
+
+    state.onDone((root) => {
+        console.log('Render pass into ', root)
+    })
+
+	/* Shadow DOM style */
+
 	state.addStyle(`
-	p {
-	  box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
-	  transition: all 0.5s ease;
-	  padding: 10px; margin: 20px;
-	  font-family: sans-serif; border-radius: 5px;
-	  text-align: center; width: calc(100%-60px); max-width: 400px; font-size: 2em; }
-	p.odd   {  background: #444; color: #fff; }
-	button  {  transform: scale(1.25) translateY(-15%); }
-	.number {  padding: 0 10px; }
-	.slot   {  font-size: 0.45em; }
+    p { box-shadow: 0 2px 10px rgb(0 0 0 / 0.3); font-family: sans-serif; 
+	    transition: all 0.5s ease; padding: 10px; margin: 20px; border-radius: 5px;
+	    text-align: center; width: calc(100%-60px); max-width: 400px; font-size: 2em; }
+	.odd { background: #444; color: #fff; } button { transform: scale(1.25) translateY(-15%); }
+	.number { padding: 0 10px; } .slot { font-size: 0.45em; }
 	`)
 
-	const dec = (ev) => {console.log(ev);counter.set(counter.val - 1);}
-	const incr = (ev) => {counter.set(counter.val + 1);}
+    /* Event handlers */
 
-	let classList = {odd: counter.val % 2};
+    const decr = (ev) => { vars.counter--; }
+	const incr = (ev) => { vars.counter++; }
+
+    /* Only put ".odd" if counter is odd */
+
+	let classList = {odd: vars.counter % 2};
 
 	return h`
-	<p
-	class=${classList}>
-		<button onClick=${dec}> - </button>
-		<span class="number">${counter.val}</span>
+	<p class=${classList}>
+		<button onClick=${decr}> - </button>
+
+		<span class="number">${vars.counter}</span>
+
 		<button onClick=${incr}> + </button>
 		
 		<div class="slot">${state.slot()}</div>
@@ -51,6 +57,5 @@ createElement('my-counter', MyCounter)
 
 <my-counter>blah first</my-counter>
 <my-counter data-x=3>blah second</my-counter>
-<my-filip></my-filip>
 
 </body>
