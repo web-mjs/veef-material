@@ -12,50 +12,47 @@
 import { h, createElement } from './veef.mjs';
 
 const MyCounter = (state) => {
-    const vars = state.init({
-        counter: 0
-    })
-
-    state.onDone((root) => {
-        console.log('Render pass into ', root)
-    })
-
-	/* Shadow DOM style */
-
 	state.addStyle(`
-    p { box-shadow: 0 2px 10px rgb(0 0 0 / 0.3); font-family: sans-serif; 
-	    transition: all 0.5s ease; padding: 10px; margin: 20px; border-radius: 5px;
-	    text-align: center; width: calc(100%-60px); max-width: 400px; font-size: 2em; }
-	.odd { background: #444; color: #fff; } button { transform: scale(1.25) translateY(-15%); }
+    p       
+            { box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+              font-family: sans-serif; font-size: 2em;
+	          transition: all 0.5s ease; padding: 10px;
+              margin: 20px; border-radius: 5px;
+	          text-align: center; max-width: 400px;         }
+	.odd    { background: #444; color: #fff;                }
+    button  { transform: scale(1.25) translateY(-15%);      }
 	.number { padding: 0 10px; } .slot { font-size: 0.45em; }
 	`)
 
-    /* Event handlers */
-
-    const decr = (ev) => { vars.counter--; }
-	const incr = (ev) => { vars.counter++; }
-
-    /* Only put ".odd" if counter is odd */
-
-	let classList = {odd: vars.counter % 2};
+    let values = state.init({ counter: 0 })
+    const minusClick = (e) => { values.counter--; }
+	const plusClick  = (e) => { values.counter++; }
 
 	return h`
-	<p class=${classList}>
-		<button onClick=${decr}> - </button>
-
-		<span class="number">${vars.counter}</span>
-
-		<button onClick=${incr}> + </button>
-		
-		<div class="slot">${state.slot()}</div>
+    <p class=${{odd: values.counter % 2}}>
+		<button onClick=${minusClick}> - </button>
+		<span class="number">${values.counter}</span>
+		<button onClick=${plusClick}> + </button>
+		<div class="slot">${state.slot('', values)}</div>
 	</p>
 	`;
 }
 
 createElement('my-counter', MyCounter)
+createElement('my-ctx', (state, ctx) => {
+    const v = state.init({c: 0})
+    state.after(() => {
+        if(!ctx)
+        setTimeout(() => v.c++, 500)
+    })
+    return h`<span>Context demo: <br/> ${JSON.stringify(ctx) || ''}</span>`
+});
 </script>
 
-<my-counter>blah first</my-counter>
-<my-counter data-x=3>blah second</my-counter>
+<my-counter>first counter</my-counter>
+<my-counter>second counter</my-counter>
+<my-counter>
+    <my-ctx></my-ctx>
+</my-counter>
 
 </body>
