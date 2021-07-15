@@ -41,11 +41,12 @@ const MyCounter = (state) => {
 createElement('my-counter', MyCounter)
 createElement('my-ctx', (state, ctx) => {
     const v = state.init({c: 0})
-    state.after(() => {
-        if(!ctx)
-        setTimeout(() => v.c++, 500)
-    })
-    return h`<span>Context demo: <br/> ${JSON.stringify(ctx) || ''}</span>`
+    state.addStyle(`div{ color: #BFC2C8;
+    border-radius: 5px;
+    margin: 1em 0; background: #40444B;
+    border: 1px solid #2D3035; padding:1em}`)
+    return h`This is a ${'<my-ctx>'} and I received <br/> 
+    the following context from parent: <pre> ${JSON.stringify(ctx) || ''}</pre>`
 });
 </script>
 
