@@ -1,14 +1,16 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" 
+  nonce="fallback"
+  href="data:text/css;base64,Om5vdCg6ZGVmaW5lZCl7bWF4LXdpZHRoOjQwMHB4O2NvbG9yOnJnYigwIDAgMC8wKTtiYWNrZ3JvdW5kOmxpbmVhci1ncmFkaWVudCg0NWRlZywjY2NjIDAsICNmZmYgMTAwJSk7aGVpZ2h0OjVlbTttYXJnaW46MmVtO31ib2R5Pip7ZGlzcGxheTpibG9jazt0cmFuc2l0aW9uOmFsbCAwLjNzO30=">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs/%3E%3Cpath d='M52 6l74 66-74 50'/%3E%3Cpath fill='%2300FFD8' d='M16 6h36v116H16z'/%3E%3C/svg%3E%0A">
+
 <title>veef WebModule lib</title>
-<body>
 
-<!--
-    veef.mjs: authored by Filip Dimitrovski
-    2021, All rights reserved -->
-
-<script type="module">
+<script type="module" defer async>
 import { h, createElement } from './veef.mjs';
 
 const MyCounter = (state) => {
@@ -19,7 +21,7 @@ const MyCounter = (state) => {
 	          transition: all 0.5s ease; padding: 10px;
               margin: 20px; border-radius: 5px;
 	          text-align: center; max-width: 400px;         }
-	.odd    { background: #444; color: #fff;                }
+	.odd    { background: #494F56; color: #BFC2C8;          }
     button  { transform: scale(1.25) translateY(-15%);      }
 	.number { padding: 0 10px; } .slot { font-size: 0.45em; }
 	`)
@@ -39,16 +41,21 @@ const MyCounter = (state) => {
 }
 
 createElement('my-counter', MyCounter)
+
 createElement('my-ctx', (state, ctx) => {
     const v = state.init({c: 0})
-    state.addStyle(`div{ color: #BFC2C8;
-    border-radius: 5px;
-    margin: 1em 0; background: #40444B;
-    border: 1px solid #2D3035; padding:1em}`)
+    state.addStyle(`
+    pre { font-size: 1.3em; color: #F3725F; }
+    div{ color: #BFC2C8; border-radius: 5px;
+    margin: 1em 0; background: #3C4046;
+    border: 1px solid #27292E; padding:1em}`)
+
     return h`This is a ${'<my-ctx>'} and I received <br/> 
     the following context from parent: <pre> ${JSON.stringify(ctx) || ''}</pre>`
 });
 </script>
+</head>
+<body>
 
 <my-counter>first counter</my-counter>
 <my-counter>second counter</my-counter>

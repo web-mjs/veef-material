@@ -1,0 +1,10 @@
+{
+  "headers": [
+    {
+		"source": "/(.*)",
+		"headers": [
+			{"key": "Link", "value": "</veef.mjs>; rel=\"modulepreload\", </logo.svg>; rel=preload as=icon"}
+		]
+	}
+  ]
+}
