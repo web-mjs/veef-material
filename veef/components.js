@@ -1,5 +1,6 @@
 import { render, html, useRef, useEffect, useState, useContext, createContext } from '@web-mjs/preact';
 import webComponents from './webc.js'; 
+import { h, createElement } from 'vrender'
 
 // Show HN: A 30KB UI component library with progressive Web Modules
 // shite that needs to be handled
@@ -87,45 +88,46 @@ const CasualField = () => {
 webComponents.register(CasualField, 'veef-field', [], {shadow: true});
 
 import { buttonStyle } from './button-css';
-const Button = (props) => {
+const Button = (state) => {
 	let cls = 'normal';
-	if('raised' in props) cls = 'raised';
-	if('light' in props) cls = 'light';
-	if('borderless' in props) cls += ' borderless';
-	useEffect(() => {
-		rippleRef.current.primary = false;
-		buttonRef.current.addEventListener('pointerdown', (e) => {
-			buttonRef.current.setPointerCapture(e.pointerId)
-			rippleRef.current.startPress(e);
+	//if('raised' in props) cls = 'raised';
+	//if('light' in props) cls = 'light';
+	//if('borderless' in props) cls += ' borderless';
+	state.after(() => {
+		let rippleRef = state.ref('rippleRef')
+		let buttonRef = state.ref('buttonRef')
+		rippleRef.primary = false;
+		buttonRef.addEventListener('pointerdown', (e) => {
+			buttonRef.setPointerCapture(e.pointerId)
+			rippleRef.startPress(e);
 		});
 	});
-	const styleRef = useRef();
-	const nativeInput = useRef();
-	const rippleRef = useRef();
-	const buttonRef = useRef();
-	const mUp = () => rippleRef.current.endPress();
-	return html`
-	<button id="button" ref=${buttonRef}
-	onFocus=${() => rippleRef.current.startFocus()}
-	onBlur=${() => rippleRef.current.endFocus()}
+	state.addStyle(buttonStyle)
+	const mUp = () => { 
+		console.log(state.ref('rippleRef').endPress)
+		state.ref('rippleRef').endPress.bind(state.ref('rippleRef'))()
+	}
+	return h`
+	<button id="button" ref='buttonRef'
+	onFocus=${() => state.ref('rippleRef').startFocus()}
+	onBlur=${() => state.ref('rippleRef').endFocus()}
 	onpointerup=${mUp} onpointercancel=${mUp}
 	class="btn ${cls}" aria-label="Button">
-        <mwc-ripple class="ripple" ref=${rippleRef} ></mwc-ripple>
+        <mwc-ripple class="ripple" ref='rippleRef' ></mwc-ripple>
         <span class="leading-icon">
           <slot name="icon">
           </slot>
         </span>
-        <span class="label">${props.domText}</span>
+        <span class="label">${state.slot('')}</span>
         <span class="slot-container">
         </span>
         <span class="trailing-icon">
           <slot name="trailingIcon">
           </slot>
         </span>
-      </button>
-	<style ref=${cssRef(buttonStyle)} />`;
+      </button>`
 };
-webComponents.register(Button, 'veef-button', ['raised'], {shadow: true});
+createElement('veef-button', Button)
 
 const ListContext = createContext();
 const MyList = (props) => {

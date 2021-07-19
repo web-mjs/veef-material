@@ -16,7 +16,7 @@ const createElement = (name, component) => {
                 let newVdom = wrapStyle(component(state, _ctx))
 
                 if(!lastVdom) {
-                    root.append(render(newVdom))
+                    render(newVdom, root)
                 } else {
                     diff(lastVdom, newVdom, root)
                 }
@@ -90,7 +90,7 @@ const createElement = (name, component) => {
                 return vdom
             }
             rerender()
-			setElementProps([['done','']], this)
+			setElementProps([['vf','']], this)
             new MutationObserver(rerender).observe(this, {attributes:true,subtree:true})
         }
         /*
@@ -103,13 +103,14 @@ const createElement = (name, component) => {
          */
     })
 }
-const render = (vdom) => {
+const render = (vdom, target) => {
     if(!vdom._isElement) return document.createTextNode(vdom);
     let name = vdom._name
-    if(name == 'root') name = 'div'
-    let newEl = document.createElement(name);
-    // TODO: Handle multiple slot names & context
-    // if(name == 'slot') newEl._name = vdom.n;
+    let newEl
+    if(name != 'root') 
+    newEl = document.createElement(name);
+    else
+    newEl = target
     setElementProps(vdom._props, newEl)
     newEl.append(...vdom._children.map(x => render(x)));
     return newEl
@@ -149,7 +150,7 @@ const _diff = (vdom1, vdom2, domNode, parentNode) => {
 
 
 /*@__INLINE__*/
-const diff = (vdom1, vdom2, w) => _diff(vdom1, vdom2, w.children[0])
+const diff = (vdom1, vdom2, w) => _diff(vdom1, vdom2, w)
 
 // Construct an empty virtual <tag>
 /*@__PURE__*/
